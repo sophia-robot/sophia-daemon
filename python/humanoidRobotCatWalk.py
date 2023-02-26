@@ -1,18 +1,31 @@
 from dynamixel_sdk import *                    # Uses Dynamixel SDK library
 
 class HumanoidRobotCatWalk:
-  OK   = 0
-  FAIL = 1
-
-  ENABLE  = 0
-  DISABLE = 1
+  OK      = None
+  FAIL    = None
+  ENABLE  = None
+  DISABLE = None
 
   def __init__(self, baud=None, port=None):
+    global OK, FAIL, ENABLE, DISABLE
+    self.OK   = 0
+    self.FAIL = 1
+
+    self.ENABLE  = 0
+    self.DISABLE = 1
+
+    OK      = self.OK
+    FAIL    = self.FAIL
+    ENABLE  = self.ENABLE
+    DISABLE = self.DISABLE
+
+    self.PI                          = 3.141592653589793238
+    self.ENC_REZ                     = 4096
     self.ADDR_TORQUE_ENABLE          = 64
     self.ADDR_GOAL_POSITION          = 116
     self.LEN_GOAL_POSITION           = 4         # Data Byte Length
     self.ADDR_PRESENT_POSITION       = 132
-
+    self.LEN_PRESENT_POSITION        = 4
 
     if baud == None:
       self.BAUDRATE                    = 1000000
@@ -41,54 +54,71 @@ class HumanoidRobotCatWalk:
 
   def getDxlError(self, dxl_comm_result=None, dxl_error=None):
     if dxl_comm_result == None:
-      return FAIL
+      return self.FAIL
     elif dxl_error == None:
-      return FAIL
+      return self.FAIL
     elif dxl_comm_result != COMM_SUCCESS:
-      return FAIL
+      return self.FAIL
     elif dxl_error != 0:
-      return FAIL
+      return self.FAIL
     else:
-      return OK
+      return self.OK
 
 
   def open(self):
     # Opens the port
     if self.portHandler.openPort():
-      return OK
+      return self.OK
     else:
-      return FAIL
+      return self.FAIL
 
-  def setBaud(self):
+  def setBaud(self, baud=None):
+    if baud == None:
+      baud = self.BAUDRATE
     # sets the baud
-    if self.portHandler.setBaudRate(self.BAUDRATE):
-      return OK
+    if self.portHandler.setBaudRate(baud):
+      self.BAUDRATE = baud
+      return self.OK
     else:
-      return FAIL
+      return self.FAIL
     
   def torque(self, the_id=None, do_enable=None):
     if   the_id == None:
-      return FAIL
+      return self.FAIL
     elif the_id < 0:
-      return FAIL
+      return self.FAIL
     elif the_id > 253:
-      return FAIL
+      return self.FAIL
     elif do_enable == None:
-      return FAIL
+      return self.FAIL
     elif do_enable == ENABLE:
       dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(self.portHandler, the_id, self.ADDR_TORQUE_ENABLE, self.TORQUE_ENABLE)
       return self.getDxlError(dxl_comm_result, dxl_error)
-    elif do_enable == DISABLE
+    elif do_enable == DISABLE:
       dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(self.portHandler, the_id, self.ADDR_TORQUE_ENABLE, self.TORQUE_DISABLE)
       return self.getDxlError(dxl_comm_result, dxl_error)
-    return FAIL
+    return self.FAIL
 
   def stagePos(self, the_id=None, the_pos=None):
+    if the_pos == None:
+      return self.FAIL
+    
+    enc = self.rad2enc(the_pos)
+    return self.stagePosEnc(the_id, enc)
 
+  def stagePosDeg(self, the_id=None, the_pos=None):
+    if the_pos == None:
+      return self.FAIL
+    
+    enc = self.deg2enc(the_pos)
+    return self.stagePosEnc(the_id, enc)
+    
+
+  def stagePosEnc(self, the_id=None, the_pos=None):
     if the_id == None:
-      return FAIL
+      return self.FAIL
     elif the_pos == None:
-      return FAIL
+      return self.FAIL
 
     dxl_goal_position = the_pos
     # Allocate goal position value into byte array
@@ -100,13 +130,13 @@ class HumanoidRobotCatWalk:
     # Add Dynamixel goal position value to the Syncwrite parameter storage
     dxl_addparam_result = groupSyncWrite.addParam(the_id, param_goal_position)
     if dxl_addparam_result != True:
-      return FAIL
+      return self.FAIL
     else:
-      return OK
+      return self.OK
 
   def resetStagePos(self):
     self.groupSyncWrite.clearParam()
-    return OK
+    return self.OK
 
 
   def putPos(self):
@@ -115,3 +145,33 @@ class HumanoidRobotCatWalk:
     return self.getDxlError(dxl_comm_result, dxl_error)
         
 
+  def getPos(self, the_id):
+    # Read present position
+    dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, the_id, self.ADDR_PRESENT_POSITION)
+    return (dxl_present_position, self.getDxlError(dxl_comm_result, dxl_error))
+
+  def enc2rad(self, enc):
+    res = 1.0/self.ENC_REZ 
+    rad = enc * res * 2.0 * self.PI - self.PI
+    return rad    
+
+  def enc2deg(self, enc):
+    rad = self.enc2rad(enc)
+    deg = self.rad2deg(rad)
+    return deg
+
+  def rad2deg(self, rad):
+    deg = rad * 180.0 / self.PI
+    return deg
+
+  def deg2rad(self, deg):
+    rad = deg * self.PI / 180.0
+    return rad
+
+  def rad2enc(self, rad):
+    enc = rad / (2.0 * self.PI) * self.ENC_REZ
+    return enc
+
+  def deg2enc(self, deg):
+    rad = self.deg2rad(deg)
+    return self.rad2enc(rad)
