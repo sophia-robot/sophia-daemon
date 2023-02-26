@@ -16,4 +16,4 @@ robot.torque(the_id, robot.DISABLE)
 while True:
   pos = robot.getPos(the_id)
   print(pos)
-  time.sleep(0.1) 
+  time.sleep(0.02) 

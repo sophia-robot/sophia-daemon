@@ -144,8 +144,20 @@ class HumanoidRobotCatWalk:
     dxl_comm_result, dexl_error = self.groupSyncWrite.txPacket()
     return self.getDxlError(dxl_comm_result, dxl_error)
         
-
   def getPos(self, the_id):
+    # Read present position
+    enc, err = self.getPosEnc(the_id)
+    rad = self.enc2rad(enc)
+    return (rad, err)
+
+  def getPosDeg(self, the_id):
+    # Read present position
+    enc, err = self.getPosEnc(the_id)
+    deg = self.enc2deg(enc)
+    return (deg, err)
+
+
+  def getPosEnc(self, the_id):
     # Read present position
     dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, the_id, self.ADDR_PRESENT_POSITION)
     return (dxl_present_position, self.getDxlError(dxl_comm_result, dxl_error))
