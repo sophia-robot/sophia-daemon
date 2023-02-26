@@ -1,7 +1,7 @@
-import humanoidRobotCatWalk as hrcw
+import lofaroDynamixel2 as ld2
 import time
 
-robot = hrcw.HumanoidRobotCatWalk()
+robot = ld2.LofaroDynamixel2()
 
 the_id = 0x15
 

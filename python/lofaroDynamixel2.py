@@ -1,6 +1,6 @@
 from dynamixel_sdk import *                    # Uses Dynamixel SDK library
 
-class HumanoidRobotCatWalk:
+class LofaroDynamixel2:
   OK      = None
   FAIL    = None
   ENABLE  = None
