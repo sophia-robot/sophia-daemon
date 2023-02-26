@@ -52,7 +52,7 @@ def torqueEnable():
   print(robot)
 
 t0 = time.time()
-T_des = 0.02
+T_des = 0.5
 def sleep():
   global t0
   t1 = time.time()
