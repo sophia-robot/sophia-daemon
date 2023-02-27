@@ -40,7 +40,7 @@ def callback(msg):
 def init():
   global robot, node, pub, sub
 
-  robot = ld2.LofaroDynamixel2()
+  robot = ld2.LofaroDynamixel2(baud=3000000, port='/dev/ttyUSB0')
   robot.open()
   robot.setBaud()
   rclpy.init()
@@ -74,7 +74,11 @@ def getPos():
     if p[ENUM_ENABLED]:
       name   = p[ENUM_NAME]
       the_id = p[ENUM_ENC]
+      tt0 = time.time()
       pos, err    = robot.getPos(the_id)
+      tt1 = time.time()
+      print(name, end=' ')
+      print(tt1-tt0)
       if err == robot.OK:
         state.name.append(name)
         state.position.append(pos)

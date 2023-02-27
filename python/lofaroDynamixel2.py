@@ -41,6 +41,8 @@ class LofaroDynamixel2:
     else:
       self.DEVICENAME                  = port
 
+    ss = 'setserial '+self.DEVICENAME+' low_latency'
+    os.system(ss)
 
     self.TORQUE_ENABLE               = 1                 # Value for enabling the torque
     self.TORQUE_DISABLE              = 0                 # Value for disabling the torque
@@ -77,6 +79,7 @@ class LofaroDynamixel2:
       baud = self.BAUDRATE
     # sets the baud
     if self.portHandler.setBaudRate(baud):
+      self.portHandler.setPacketTimeout(1)
       self.BAUDRATE = baud
       return self.OK
     else:
@@ -158,8 +161,13 @@ class LofaroDynamixel2:
 
 
   def getPosEnc(self, the_id):
+    t00 = time.time()
+    self.portHandler.setPacketTimeout(1)
     # Read present position
     dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, the_id, self.ADDR_PRESENT_POSITION)
+    t11 = time.time()
+    print("getPosEnc dt = ", end='')
+    print(t11-t00)
     return (dxl_present_position, self.getDxlError(dxl_comm_result, dxl_error))
 
   def enc2rad(self, enc):
