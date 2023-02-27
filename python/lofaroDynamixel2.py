@@ -1,5 +1,5 @@
 from dynamixel_sdk import *                    # Uses Dynamixel SDK library
-
+import os
 class LofaroDynamixel2:
   OK      = None
   FAIL    = None
@@ -161,13 +161,8 @@ class LofaroDynamixel2:
 
 
   def getPosEnc(self, the_id):
-    t00 = time.time()
-    self.portHandler.setPacketTimeout(1)
     # Read present position
     dxl_present_position, dxl_comm_result, dxl_error = self.packetHandler.read4ByteTxRx(self.portHandler, the_id, self.ADDR_PRESENT_POSITION)
-    t11 = time.time()
-    print("getPosEnc dt = ", end='')
-    print(t11-t00)
     return (dxl_present_position, self.getDxlError(dxl_comm_result, dxl_error))
 
   def enc2rad(self, enc):

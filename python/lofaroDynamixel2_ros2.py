@@ -52,7 +52,7 @@ def torqueEnable():
   print(robot)
 
 t0 = time.time()
-T_des = 0.5
+T_des = 0.02
 def sleep():
   global t0
   t1 = time.time()
@@ -74,11 +74,7 @@ def getPos():
     if p[ENUM_ENABLED]:
       name   = p[ENUM_NAME]
       the_id = p[ENUM_ENC]
-      tt0 = time.time()
       pos, err    = robot.getPos(the_id)
-      tt1 = time.time()
-      print(name, end=' ')
-      print(tt1-tt0)
       if err == robot.OK:
         state.name.append(name)
         state.position.append(pos)
