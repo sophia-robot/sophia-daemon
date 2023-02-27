@@ -10,8 +10,8 @@ pub   = None
 sub   = None
 
 ENUM_NAME    = 0
-ENUM_POS     = 1
-ENUM_ENC     = 2
+ENUM_REF     = 1
+ENUM_STATE   = 2
 ENUM_ENABLED = 3
 
 #        name   pos_id  enc_id  enabled
@@ -35,6 +35,16 @@ IDs = { ("rhy", 0x1c,   0x10,   False ),
 
 
 def callback(msg):
+  for m in msg:
+    for p in IDs:
+      pos = m.position
+
+      if p[ENUM_ENABLED]:
+        name    = p[ENUM_NAME]
+        the_id  = p[ENUM_REF]
+        enabled = p[ENUM_ENABLED]
+        if (m.name == name):          
+          err    = robot.stagePos(the_id, pos)
   pass
 
 def init():
@@ -73,13 +83,11 @@ def getPos():
 #    print(p)
     if p[ENUM_ENABLED]:
       name   = p[ENUM_NAME]
-      the_id = p[ENUM_ENC]
+      the_id = p[ENUM_STATE]
       pos, err    = robot.getPos(the_id)
       if err == robot.OK:
         state.name.append(name)
         state.position.append(pos)
-#    pos = robot.getPos(p{ENUM_ENC})
-#    state.name +=  p{ENUM_NAME}
 
   pub.publish(state) 
   pass
