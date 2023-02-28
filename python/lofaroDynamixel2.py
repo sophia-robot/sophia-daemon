@@ -148,7 +148,7 @@ class LofaroDynamixel2:
     # Syncwrite goal position
     dxl_comm_result = self.groupSyncWrite.txPacket()
     dxl_error       = 0
-#    self.resetStagePos()
+    self.resetStagePos()
     return self.getDxlError(dxl_comm_result, dxl_error)
         
   def getPos(self, the_id):

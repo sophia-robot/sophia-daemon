@@ -34,8 +34,6 @@ IDs = { ("rhy", 0x1c,   0x10,   False ),
       }
 
 def callback(msg):
-  print(msg.name)
-  print(len(msg.name))
   m = msg
   for i in range(len(msg.name)):
 #    try:
@@ -48,12 +46,7 @@ def callback(msg):
           enabled = p[ENUM_ENABLED]
           name2 = m.name[i]
           if (name2 == name):       
-            print("stage")   
             err    = robot.stagePos(the_id, pos)
-            print("staged ", end='')
-            print(hex(the_id), end='')
-            print(" to ", end='')
-            print(pos)
 #    except:
 #      pass
   pass
@@ -103,7 +96,6 @@ def putPos():
 def getPos():
   state = JointState()
   for p in IDs:
-#    print(p)
     if p[ENUM_ENABLED]:
       name   = p[ENUM_NAME]
       the_id = p[ENUM_STATE]

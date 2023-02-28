@@ -74,7 +74,7 @@ def loop():
   global pub
   j = JointState()
   j.name.append("rtp")
-  j.position.append(0.01)
+  j.position.append(0.1)
   while True:
     j.position[0] = -j.position[0]
     pub.publish(j)
