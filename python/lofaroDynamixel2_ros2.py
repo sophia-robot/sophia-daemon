@@ -34,25 +34,29 @@ IDs = { ("rhy", 0x1c,   0x10,   False ),
       }
 
 def callback(msg):
-  print('got msg')
-  for m in msg:
-    for p in IDs:
-      pos = m.position
+  print(msg.name)
+  print(len(msg.name))
+  m = msg
+  for i in range(len(msg.name)):
+#    try:
+      for p in IDs:
+        pos = m.position[i]
 
-      if p[ENUM_ENABLED]:
-        name    = p[ENUM_NAME]
-        the_id  = p[ENUM_REF]
-        enabled = p[ENUM_ENABLED]
-        if (m.name == name):          
-          err    = robot.stagePos(the_id, pos)
-          print(err)
+        if p[ENUM_ENABLED]:
+          name    = p[ENUM_NAME]
+          the_id  = p[ENUM_REF]
+          enabled = p[ENUM_ENABLED]
+          name2 = m.name[i]
+          if (name2 == name):       
+            print("stage")   
+            err    = robot.stagePos(the_id, pos)
+            print("staged ", end='')
+            print(hex(the_id), end='')
+            print(" to ", end='')
+            print(pos)
+#    except:
+#      pass
   pass
-
-def chatter_callback(msg):
-    global g_node
-    g_node.get_logger().info(
-        'I heard: "%s"' % msg.name)
-
 
 def init():
   global robot, node, pub, sub
@@ -83,16 +87,17 @@ def sleep():
   t1 = time.time()
   dt = t1 - t0
   if dt < 0.0:
-    rclpy.spin_once(node)
+    rclpy.spin_once(node,timeout_sec=0)
     dt = T_des
   while dt < T_des:
-    rclpy.spin_once(node)
+    rclpy.spin_once(node,timeout_sec=0)
     t1 = time.time()
     dt = t1 - t0
   t0 = t1 
   pass
 
-def setPos():
+def putPos():
+  robot.putPos()
   pass
 
 def getPos():
@@ -113,7 +118,7 @@ def getPos():
 def loop():
   i = 0
   while True:
-    setPos()
+    putPos()
     getPos()
     sleep()
     print(".",end='')

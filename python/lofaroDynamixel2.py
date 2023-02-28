@@ -123,7 +123,9 @@ class LofaroDynamixel2:
     elif the_pos == None:
       return self.FAIL
 
+    the_pos = int(the_pos)
     dxl_goal_position = the_pos
+
     # Allocate goal position value into byte array
     param_goal_position = [DXL_LOBYTE(DXL_LOWORD(the_pos)), 
                            DXL_HIBYTE(DXL_LOWORD(the_pos)), 
@@ -131,7 +133,7 @@ class LofaroDynamixel2:
                            DXL_HIBYTE(DXL_HIWORD(the_pos))]
 
     # Add Dynamixel goal position value to the Syncwrite parameter storage
-    dxl_addparam_result = groupSyncWrite.addParam(the_id, param_goal_position)
+    dxl_addparam_result = self.groupSyncWrite.addParam(the_id, param_goal_position)
     if dxl_addparam_result != True:
       return self.FAIL
     else:
@@ -144,7 +146,9 @@ class LofaroDynamixel2:
 
   def putPos(self):
     # Syncwrite goal position
-    dxl_comm_result, dexl_error = self.groupSyncWrite.txPacket()
+    dxl_comm_result = self.groupSyncWrite.txPacket()
+    dxl_error       = 0
+#    self.resetStagePos()
     return self.getDxlError(dxl_comm_result, dxl_error)
         
   def getPos(self, the_id):
