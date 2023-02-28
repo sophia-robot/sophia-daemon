@@ -79,14 +79,17 @@ def torqueEnable():
 t0 = time.time()
 T_des = 0.02
 def sleep():
-  global t0
+  global t0, node
   t1 = time.time()
-  tSleep = T_des - (t1-t0)
-  if tSleep < 0.0:
-    tSleep = 0.0
-    print('.', end='')
-  time.sleep(tSleep)
-  t0 = time.time() 
+  dt = t1 - t0
+  if dt < 0.0:
+    rclpy.spin_once(node)
+    dt = T_des
+  while dt < T_des:
+    rclpy.spin_once(node)
+    t1 = time.time()
+    dt = t1 - t0
+  t0 = t1 
   pass
 
 def setPos():
