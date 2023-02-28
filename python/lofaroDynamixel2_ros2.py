@@ -84,6 +84,7 @@ def sleep():
     dt = T_des
   while dt < T_des:
     rclpy.spin_once(node,timeout_sec=0)
+    time.sleep(0.002)
     t1 = time.time()
     dt = t1 - t0
   t0 = t1 
