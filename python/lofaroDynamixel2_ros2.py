@@ -16,12 +16,12 @@ ENUM_ENABLED = 3
 
 #        name   pos_id  enc_id  enabled
 IDs = { ("rhy", 0x1c,   0x10,   False ),
-        ("rhr", 0x1d,   0x12,   True  ),
-        ("rhp", 0x1e,   0x14,   True  ),
-        ("rkn", 0x1f,   0x16,   True  ),
-        ("ray", 0x18,   0x18,   True  ),
-        ("rar", 0x19,   0x19,   True  ),
-        ("rap", 0x1a,   0x1a,   True  ),
+        ("rhr", 0x1d,   0x12,   False  ),
+        ("rhp", 0x1e,   0x14,   False  ),
+        ("rkn", 0x1f,   0x16,   False  ),
+        ("ray", 0x18,   0x18,   False  ),
+        ("rar", 0x19,   0x19,   False  ),
+        ("rap", 0x1a,   0x1a,   False  ),
         ("rtp", 0x1b,   0x1b,   True  ), 
         ("lhy", 0x3c,   0x30,   False ),
         ("lhr", 0x3d,   0x32,   False ),
@@ -33,8 +33,8 @@ IDs = { ("rhy", 0x1c,   0x10,   False ),
         ("ltp", 0x3b,   0x3b,   False ) 
       }
 
-
 def callback(msg):
+  print('got msg')
   for m in msg:
     for p in IDs:
       pos = m.position
@@ -45,7 +45,14 @@ def callback(msg):
         enabled = p[ENUM_ENABLED]
         if (m.name == name):          
           err    = robot.stagePos(the_id, pos)
+          print(err)
   pass
+
+def chatter_callback(msg):
+    global g_node
+    g_node.get_logger().info(
+        'I heard: "%s"' % msg.name)
+
 
 def init():
   global robot, node, pub, sub
@@ -56,10 +63,18 @@ def init():
   rclpy.init()
   node = rclpy.create_node('lofaro_dynamixel2_ros2_node')
   pub  = node.create_publisher(JointState, '/state',1)
-  sub  = node.create_subscription(JointState,'/ref', callback, 1)
+  sub  = node.create_subscription(JointState,'/ref', callback, 10)
 
 def torqueEnable():
-  print(robot)
+  for p in IDs:
+    name    = p[ENUM_NAME]
+    the_id  = p[ENUM_REF]
+    enabled = p[ENUM_ENABLED]
+    if enabled:
+      err = robot.torque(the_id, robot.ENABLE)
+      print("Torque Enable status for ", end='')
+      print(hex(the_id), end=' = ')
+      print(err)
 
 t0 = time.time()
 T_des = 0.02
@@ -93,10 +108,16 @@ def getPos():
   pass
 
 def loop():
+  i = 0
   while True:
     setPos()
     getPos()
     sleep()
+    print(".",end='')
+    i = i+1
+    if i > 100:
+      print()
+      i = 0
 
 init()
 torqueEnable()
