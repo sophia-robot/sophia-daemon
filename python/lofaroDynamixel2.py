@@ -188,7 +188,12 @@ class LofaroDynamixel2:
     return rad
 
   def rad2enc(self, rad):
-    enc = rad / (2.0 * self.PI) * self.ENC_REZ
+    enc = rad / (2.0 * self.PI) * self.ENC_REZ + self.ENC_REZ/2.0
+    enc = int(enc)
+    if enc < 0:
+      enc = 0
+    elif enc > (self.ENC_REZ-1):
+      enc = self.ENC_REZ - 1
     return enc
 
   def deg2enc(self, deg):
