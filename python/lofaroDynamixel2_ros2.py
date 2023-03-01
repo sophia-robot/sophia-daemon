@@ -29,7 +29,7 @@ def getNextI():
 IDs = { ("rhy", 0x10,        0x11,        0x1c,   0x10,   False,   1.0,            -1.0,          getNextI()),
         ("rhr", 0x12,        0x13,        0x1d,   0x12,   True ,   0.2,            -0.2,          getNextI()),
         ("rhp", 0x14,        0x15,        0x1e,   0x14,   True ,   0.7,            -1.3,          getNextI()),
-        ("rkn", 0x16,        0x17,        0x1f,   0x16,   True ,   1.2,             0.0,          getNextI()),
+        ("rkp", 0x16,        0x17,        0x1f,   0x16,   True ,   1.2,             0.0,          getNextI()),
         ("ray", 0x18,        0x18,        0x18,   0x18,   True ,   1.0,            -1.0,          getNextI()),
         ("rar", 0x19,        0x19,        0x19,   0x19,   True ,   1.0,            -1.0,          getNextI()),
         ("rap", 0x1a,        0x1a,        0x1a,   0x1a,   True ,   0.4,            -1.0,          getNextI()),
@@ -37,7 +37,7 @@ IDs = { ("rhy", 0x10,        0x11,        0x1c,   0x10,   False,   1.0,         
         ("lhy", 0x30,        0x31,        0x3c,   0x30,   False,   1.0,            -1.0,          getNextI()),
         ("lhr", 0x32,        0x33,        0x3d,   0x32,   False,   0.2,            -0.2,          getNextI()),
         ("lhp", 0x34,        0x35,        0x3e,   0x34,   False,   0.7,            -1.3,          getNextI()),
-        ("lkn", 0x36,        0x37,        0x3f,   0x36,   False,   1.2,             0.0,          getNextI()),
+        ("lkp", 0x36,        0x37,        0x3f,   0x36,   False,   1.2,             0.0,          getNextI()),
         ("lay", 0x38,        0x38,        0x38,   0x38,   False,   1.0,            -1.0,          getNextI()),
         ("lar", 0x39,        0x39,        0x39,   0x39,   False,   1.0,            -1.0,          getNextI()),
         ("lap", 0x3a,        0x3a,        0x3a,   0x3a,   False,   0.4,            -1.0,          getNextI()),
@@ -51,7 +51,7 @@ FILTER_L        = None
 FILTER_MOT_NUM  = len(IDs)
 STATE_POS       = None
 
-FILTER_L_DEFAULT = 50
+FILTER_L_DEFAULT = 200
 
 def callback(msg):
   global FILTER_REF_GOAL
@@ -68,7 +68,8 @@ def callback(msg):
           mot_index   = p[ENUM_MOT_INDEX]
           name2 = m.name[i]
           if (name2 == name):
-            FILTER_REF_GOAL[mot_index] = pos       
+            FILTER_REF_GOAL[mot_index] = pos
+#            print(name, end=' ')       
 #            err    = robot.stagePos(the_id, pos)
 #    except:
 #      pass
@@ -86,6 +87,7 @@ def doFilterRef(mode=None):
       #err = robot.stagePos(the_id, r)  
 
 def stagePos(the_id, r):
+    err = 0
     for p in IDs:
       enabled = p[ENUM_ENABLED]
 
@@ -95,9 +97,8 @@ def stagePos(the_id, r):
             r = p[ENUM_POS_MAX]
           if r < p[ENUM_POS_MIN]:
             r = p[ENUM_POS_MIN]
-          err = robot.stagePos(the_id, r)  
-          return err
-    return 1
+          err += robot.stagePos(the_id, r)  
+    return err
 
 def init(L=None):
   global robot, node, pub, sub, FILTER_REF_0, FILTER_REF_1, FILTER_L, STATE_POS, FILTER_REF_GOAL
