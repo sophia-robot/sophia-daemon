@@ -55,7 +55,7 @@ def init():
   sub  = node.create_subscription(JointState,'/state', callback, 1)
 
 t0 = time.time()
-T_des = 1.0
+T_des = 10.0
 def sleep():
   global t0
   t1 = time.time()
@@ -74,7 +74,7 @@ def loop():
   global pub
   j = JointState()
   j.name.append("rtp")
-  j.position.append(0.1)
+  j.position.append(2.0)
   while True:
     j.position[0] = -j.position[0]
     pub.publish(j)

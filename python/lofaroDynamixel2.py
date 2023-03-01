@@ -18,7 +18,7 @@ class LofaroDynamixel2:
     FAIL    = self.FAIL
     ENABLE  = self.ENABLE
     DISABLE = self.DISABLE
-
+  
     self.PI                          = 3.141592653589793238
     self.ENC_REZ                     = 4096
     self.ADDR_TORQUE_ENABLE          = 64
