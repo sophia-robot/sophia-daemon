@@ -173,7 +173,7 @@ def torqueEnable():
         print(err)
 
 t0 = time.time()
-T_des = 0.02
+T_des = 0.05
 def sleep():
   global t0, node
   t1 = time.time()
