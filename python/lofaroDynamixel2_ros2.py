@@ -25,23 +25,26 @@ def getNextI():
   the_id_i += 1
   return the_id_i
 
-#        name   torque_en_0  torque_en_1  pos_id  enc_id  enabled  max_pos (rad)   min_pos (rad)  filter_id
-IDs = { ("rhy", 0x10,        0x11,        0x1c,   0x10,   False,   1.0,            -1.0,          getNextI()),
-        ("rhr", 0x12,        0x13,        0x1d,   0x12,   True ,   0.2,            -0.2,          getNextI()),
-        ("rhp", 0x14,        0x15,        0x1e,   0x14,   True ,   0.7,            -1.3,          getNextI()),
-        ("rkp", 0x16,        0x17,        0x1f,   0x16,   True ,   1.2,             0.0,          getNextI()),
-        ("ray", 0x18,        0x18,        0x18,   0x18,   True ,   1.0,            -1.0,          getNextI()),
-        ("rar", 0x19,        0x19,        0x19,   0x19,   True ,   1.0,            -1.0,          getNextI()),
-        ("rap", 0x1a,        0x1a,        0x1a,   0x1a,   True ,   0.4,            -1.0,          getNextI()),
-        ("rtp", 0x1b,        0x1b,        0x1b,   0x1b,   True ,   1.0,            -1.0,          getNextI()), 
-        ("lhy", 0x30,        0x31,        0x3c,   0x30,   False,   1.0,            -1.0,          getNextI()),
-        ("lhr", 0x32,        0x33,        0x3d,   0x32,   False,   0.2,            -0.2,          getNextI()),
-        ("lhp", 0x34,        0x35,        0x3e,   0x34,   False,   0.7,            -1.3,          getNextI()),
-        ("lkp", 0x36,        0x37,        0x3f,   0x36,   False,   1.2,             0.0,          getNextI()),
-        ("lay", 0x38,        0x38,        0x38,   0x38,   False,   1.0,            -1.0,          getNextI()),
-        ("lar", 0x39,        0x39,        0x39,   0x39,   False,   1.0,            -1.0,          getNextI()),
-        ("lap", 0x3a,        0x3a,        0x3a,   0x3a,   False,   0.4,            -1.0,          getNextI()),
-        ("ltp", 0x3b,        0x3b,        0x3b,   0x3b,   False,   1.0,            -1.0,          getNextI()) 
+ENABLE_RIGHT = True
+ENABLE_LEFT  = True
+
+#        name   torque_en_0  torque_en_1  pos_id  enc_id  enabled         max_pos (rad)   min_pos (rad)  filter_id
+IDs = { ("lhy", 0x30,        0x31,        0x3c,   0x30,   ENABLE_LEFT ,   1.0,            -1.0,          getNextI()),
+        ("lhr", 0x32,        0x33,        0x3d,   0x32,   ENABLE_LEFT ,   0.2,            -0.2,          getNextI()),
+        ("lhp", 0x34,        0x35,        0x3e,   0x34,   ENABLE_LEFT ,   0.7,            -1.3,          getNextI()),
+        ("lkp", 0x36,        0x37,        0x3f,   0x36,   ENABLE_LEFT ,   1.2,             0.0,          getNextI()),
+        ("lay", 0x38,        0x38,        0x38,   0x38,   ENABLE_LEFT ,   1.0,            -1.0,          getNextI()),
+        ("lar", 0x39,        0x39,        0x39,   0x39,   ENABLE_LEFT ,   1.0,            -1.0,          getNextI()),
+        ("lap", 0x3a,        0x3a,        0x3a,   0x3a,   ENABLE_LEFT ,   0.4,            -1.0,          getNextI()),
+        ("ltp", 0x3b,        0x3b,        0x3b,   0x3b,   ENABLE_LEFT ,   1.0,            -1.0,          getNextI()), 
+        ("rhy", 0x10,        0x11,        0x1c,   0x10,   ENABLE_RIGHT ,   1.0,            -1.0,          getNextI()),
+        ("rhr", 0x12,        0x13,        0x1d,   0x12,   ENABLE_RIGHT ,   0.2,            -0.2,          getNextI()),
+        ("rhp", 0x14,        0x15,        0x1e,   0x14,   ENABLE_RIGHT ,   0.7,            -1.3,          getNextI()),
+        ("rkp", 0x16,        0x17,        0x1f,   0x16,   ENABLE_RIGHT ,   1.2,             0.0,          getNextI()),
+        ("ray", 0x18,        0x18,        0x18,   0x18,   ENABLE_RIGHT ,   1.0,            -1.0,          getNextI()),
+        ("rar", 0x19,        0x19,        0x19,   0x19,   ENABLE_RIGHT ,   1.0,            -1.0,          getNextI()),
+        ("rap", 0x1a,        0x1a,        0x1a,   0x1a,   ENABLE_RIGHT ,   0.4,            -1.0,          getNextI()),
+        ("rtp", 0x1b,        0x1b,        0x1b,   0x1b,   ENABLE_RIGHT ,   1.0,            -1.0,          getNextI()) 
       }
 
 FILTER_REF_0    = None
