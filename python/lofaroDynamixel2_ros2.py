@@ -179,7 +179,7 @@ def torqueEnable():
         print(err)
 
 t0 = time.time()
-T_des = 0.03
+T_des = 0.05
 def sleep():
   global t0, node
   t1 = time.time()
@@ -241,7 +241,7 @@ def loop():
     getPos()
     getTorque()
     sleep()
-    print(".",end='')
+    print(".",end='', flush=True)
     i = i+1
     if i > 100:
       print()
