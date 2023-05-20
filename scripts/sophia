@@ -1,0 +1,267 @@
+#!/bin/bash
+
+# Daniel M. Lofaro (dan@danlofaro.com)
+
+SCREEN_NAME_ROBOT_REF="robot-process-ref"
+SCREEN_NAME_ROBOT_STATE="robot-process-state"
+SCREEN_NAME_CTRL="ctrl-process"
+SCREEN_NAME_DATA="data-process"
+SCREEN_NAME_ROBOT_SONAR="sonar-process"
+ROOT_DIR=/etc/visir/
+ROOT_DIR_ROBOT_REF=$ROOT_DIR/python
+ROOT_DIR_ROBOT=$ROOT_DIR/python
+BIN_ROBOT_NAME_REF=visir_robot_ref_run.sh
+BIN_ROBOT_NAME_STATE=visir_robot_state_run.sh
+BIN_ENABLE_FWD=enable_fwd.sh
+BIN_ENABLE_AFT=enable_aft.sh
+BIN_DISABLE_FWD=disable_fwd.sh
+BIN_DISABLE_AFT=disable_aft.sh
+BIN_ROBOT_SONAR=visir_robot_sonar_run.sh
+
+
+Enable()
+{
+  case "$1" in 
+        'robot')
+		Enable fwd
+		Enable aft
+	;;
+	'fwd')
+		THE_BIN=$BIN_ENABLE_FWD
+                THE_ROOT_DIR=$ROOT_DIR_ROBOT_REF
+	;;
+
+	'aft')
+		THE_BIN=$BIN_ENABLE_AFT
+                THE_ROOT_DIR=$ROOT_DIR_ROBOT_REF
+	;;
+
+	*)
+		ShowUsage
+		exit 1
+	;;
+   esac
+   cd $ROOT_DIR_ROBOT_REF
+   source $THE_BIN
+   
+}
+
+Disable()
+{
+  case "$1" in 
+	'robot')
+		Disable fwd
+		Disable aft
+	;;
+	'fwd')
+		THE_BIN=$BIN_DISABLE_FWD
+                THE_ROOT_DIR=$ROOT_DIR_ROBOT_REF
+	;;
+
+	'aft')
+		THE_BIN=$BIN_DISABLE_AFT
+                THE_ROOT_DIR=$ROOT_DIR_ROBOT_REF
+	;;
+
+	*)
+		ShowUsage
+		exit 1
+	;;
+   esac
+   cd $ROOT_DIR_ROBOT_REF
+   source $THE_BIN
+   
+}
+
+Start()
+{
+  case "$1" in
+  # Robot Side
+	'robot' )
+          	Start ref
+   		Start state
+		Start sonar
+	;;
+	'sonar' )
+                THE_NAME=$SCREEN_NAME_ROBOT_SONAR
+                THE_BIN=$BIN_ROBOT_SONAR
+                THE_ROOT_DIR=$ROOT_DIR_ROBOT
+	;;
+
+	'ref' )
+                THE_NAME=$SCREEN_NAME_ROBOT_REF
+                THE_BIN=$BIN_ROBOT_NAME_REF
+                THE_ROOT_DIR=$ROOT_DIR_ROBOT_REF
+	;;
+
+	'state' )
+                THE_NAME=$SCREEN_NAME_ROBOT_STATE
+                THE_BIN=$BIN_ROBOT_NAME_STATE
+                THE_ROOT_DIR=$ROOT_DIR_ROBOT_STATE
+	;;
+
+  # Controller Side
+	'ctrl' )
+                THE_NAME=$SCREEN_NAME_CTRL
+                THE_BIN=$BIN_ROBOT_NAME_CTRL
+                THE_ROOT_DIR=$ROOT_DIR_CTRL
+        ;;
+
+  # Data side
+        'data' )
+                THE_NAME=$SCREEN_NAME_DATA
+                THE_BIN=$BIN_ROBOT_NAME_DATA
+                THE_ROOT_DIR=$ROOT_DIR_DATA
+	;;
+
+	*)
+		ShowUsage
+		exit 1
+	;;
+   esac
+
+   if ! screen -list | grep -q $THE_NAME; then
+   # 'Starting Robot Process'
+     cd $ROOT_DIR_ROBOT_REF
+     screen -S $THE_NAME -d -m ./$THE_BIN
+   fi
+   sleep 1
+   Status $1
+}
+
+Stop()
+{
+  case "$1" in
+  # Robot Side
+	'robot' )
+                Stop ref
+     		Stop state
+		Stop sonar
+	;;
+	'sonar' )
+                THE_NAME=$SCREEN_NAME_ROBOT_SONAR
+	;;
+
+
+	'ref' )
+                THE_NAME=$SCREEN_NAME_ROBOT_REF
+	;;
+
+	'state' )
+                THE_NAME=$SCREEN_NAME_ROBOT_STATE
+	;;
+
+  # Controller Side
+	'ctrl' )
+                THE_NAME=$SCREEN_NAME_CTRL
+        ;;
+
+  # Data side
+        'data' )
+                THE_NAME=$SCREEN_NAME_DATA
+	;;
+
+	*)
+		ShowUsage
+		exit 1
+	;;
+  esac
+  screen -S $THE_NAME -p 0 -X quit
+  sleep 1
+  Status $1
+}
+
+Status()
+{
+  case "$1" in
+  # Robot Side
+	'robot' )
+                Status ref
+		Status state
+		Status sonar
+	;;
+	'sonar' )
+                THE_NAME=$SCREEN_NAME_ROBOT_SONAR
+	;;
+
+
+	'ref' )
+                THE_NAME=$SCREEN_NAME_ROBOT_REF
+	;;
+
+	'state' )
+                THE_NAME=$SCREEN_NAME_ROBOT_STATE
+	;;
+
+  # Controller Side
+	'ctrl' )
+                THE_NAME=$SCREEN_NAME_CTRL
+        ;;
+
+  # Data side
+        'data' )
+                THE_NAME=$SCREEN_NAME_DATA
+	;;
+
+	*)
+		ShowUsage
+		exit 1
+	;;
+  esac
+  if ! screen -list | grep -q $THE_NAME; then
+  # 'Starting Robot Process'
+    echo 'Process NOT running'
+  else
+    echo 'Process running'
+  fi
+}
+
+DIR_PYTHON_SCRIPT=/etc/sophia/scripts/
+SCRIPT_PYTHON_RUN=run.sh
+
+Run()
+{
+  if [ -z $1 ]
+  then
+    ShowUsage
+    exit 1
+  else
+    source $DIR_PYTHON_SCRIPT/$SCRIPT_PYTON_RUN $1
+  fi
+}
+
+ShowUsage()
+{
+	echo
+        echo '------------------------------------------------'
+        echo '------------------------------------------------'
+        echo '-----------SOPHIA DAEMON AND CONTROL -----------'
+        echo '--------- Support: dan@danlofaro.com -----------'
+        echo '------------------------------------------------'
+        echo '------------------------------------------------'
+	echo 'run <file name>   : Runs your python script with'
+        echo '                    the Sophia includes in path '
+	echo '(no-arg)          : This message'
+	echo
+}
+
+
+case "$1" in
+# Runs Python Script
+	'run' )
+		Run $2
+	;;
+
+	*)
+		ShowUsage
+		exit 1
+	;;
+esac
+
+exit 0
+
+# Local Variables:
+#  indent-tabs-mode:t
+#  tab-width: 8
+#  c-basic-offset: 8
+# End:
