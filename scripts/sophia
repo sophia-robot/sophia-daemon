@@ -23,6 +23,8 @@ SOPHIA_TMP=$DIR_TMP/sophia-tmp.sh
 touch $SOPHIA_TMP
 chmod +x $SOPHIA_TMP
 
+SOPHIA_SERIAL=/dev/ttyUSB0
+
 Enable()
 {
   case "$1" in 
@@ -86,6 +88,7 @@ Start()
 	;;
 
 	'daemon' )
+		setserial $SOPHIA_SERIAL low_latency
                 THE_NAME=$SCREEN_NAME_DAEMON
                 THE_BIN=$SCRIPT_SOPHIA_DAEMON_ROS
                 THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
