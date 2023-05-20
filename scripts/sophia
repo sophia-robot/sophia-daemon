@@ -2,11 +2,7 @@
 
 # Daniel M. Lofaro (dan@danlofaro.com)
 
-SCREEN_NAME_ROBOT_REF="robot-process-ref"
-SCREEN_NAME_ROBOT_STATE="robot-process-state"
-SCREEN_NAME_CTRL="ctrl-process"
-SCREEN_NAME_DATA="data-process"
-SCREEN_NAME_ROBOT_SONAR="sonar-process"
+SCREEN_NAME_DAEMON="sophia-process-daemon"
 ROOT_DIR=/etc/visir/
 ROOT_DIR_ROBOT_REF=$ROOT_DIR/python
 ROOT_DIR_ROBOT=$ROOT_DIR/python
@@ -18,6 +14,14 @@ BIN_DISABLE_FWD=disable_fwd.sh
 BIN_DISABLE_AFT=disable_aft.sh
 BIN_ROBOT_SONAR=visir_robot_sonar_run.sh
 
+DIR_PYTHON_SCRIPT=/etc/sophia/python/
+SCRIPT_PYTHON_RUN=run.sh
+PYTHON_SOPHIA_DAEMON_ROS=lofaroDynamixel2_ros2.py
+SCRIPT_SOPHIA_DAEMON_ROS=sophia-daemon.sh
+DIR_TMP=/tmp
+SOPHIA_TMP=$DIR_TMP/sophia-tmp.sh
+touch $SOPHIA_TMP
+chmod +x $SOPHIA_TMP
 
 Enable()
 {
@@ -78,40 +82,13 @@ Start()
   case "$1" in
   # Robot Side
 	'robot' )
-          	Start ref
-   		Start state
-		Start sonar
-	;;
-	'sonar' )
-                THE_NAME=$SCREEN_NAME_ROBOT_SONAR
-                THE_BIN=$BIN_ROBOT_SONAR
-                THE_ROOT_DIR=$ROOT_DIR_ROBOT
+          	Start daemon
 	;;
 
-	'ref' )
-                THE_NAME=$SCREEN_NAME_ROBOT_REF
-                THE_BIN=$BIN_ROBOT_NAME_REF
-                THE_ROOT_DIR=$ROOT_DIR_ROBOT_REF
-	;;
-
-	'state' )
-                THE_NAME=$SCREEN_NAME_ROBOT_STATE
-                THE_BIN=$BIN_ROBOT_NAME_STATE
-                THE_ROOT_DIR=$ROOT_DIR_ROBOT_STATE
-	;;
-
-  # Controller Side
-	'ctrl' )
-                THE_NAME=$SCREEN_NAME_CTRL
-                THE_BIN=$BIN_ROBOT_NAME_CTRL
-                THE_ROOT_DIR=$ROOT_DIR_CTRL
-        ;;
-
-  # Data side
-        'data' )
-                THE_NAME=$SCREEN_NAME_DATA
-                THE_BIN=$BIN_ROBOT_NAME_DATA
-                THE_ROOT_DIR=$ROOT_DIR_DATA
+	'daemon' )
+                THE_NAME=$SCREEN_NAME_DAEMON
+                THE_BIN=$SCRIPT_SOPHIA_DAEMON_ROS
+                THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
 	;;
 
 	*)
@@ -122,7 +99,7 @@ Start()
 
    if ! screen -list | grep -q $THE_NAME; then
    # 'Starting Robot Process'
-     cd $ROOT_DIR_ROBOT_REF
+     cd $THE_ROOT_DIR
      screen -S $THE_NAME -d -m ./$THE_BIN
    fi
    sleep 1
@@ -138,27 +115,8 @@ Stop()
      		Stop state
 		Stop sonar
 	;;
-	'sonar' )
-                THE_NAME=$SCREEN_NAME_ROBOT_SONAR
-	;;
-
-
-	'ref' )
-                THE_NAME=$SCREEN_NAME_ROBOT_REF
-	;;
-
-	'state' )
-                THE_NAME=$SCREEN_NAME_ROBOT_STATE
-	;;
-
-  # Controller Side
-	'ctrl' )
-                THE_NAME=$SCREEN_NAME_CTRL
-        ;;
-
-  # Data side
-        'data' )
-                THE_NAME=$SCREEN_NAME_DATA
+	'daemon' )
+                THE_NAME=$SCREEN_NAME_DAEMON
 	;;
 
 	*)
@@ -180,27 +138,8 @@ Status()
 		Status state
 		Status sonar
 	;;
-	'sonar' )
-                THE_NAME=$SCREEN_NAME_ROBOT_SONAR
-	;;
-
-
-	'ref' )
-                THE_NAME=$SCREEN_NAME_ROBOT_REF
-	;;
-
-	'state' )
-                THE_NAME=$SCREEN_NAME_ROBOT_STATE
-	;;
-
-  # Controller Side
-	'ctrl' )
-                THE_NAME=$SCREEN_NAME_CTRL
-        ;;
-
-  # Data side
-        'data' )
-                THE_NAME=$SCREEN_NAME_DATA
+	'daemon' )
+                THE_NAME=$SCREEN_NAME_DAEMON
 	;;
 
 	*)
@@ -216,8 +155,6 @@ Status()
   fi
 }
 
-DIR_PYTHON_SCRIPT=/etc/sophia/python/
-SCRIPT_PYTHON_RUN=run.sh
 
 Run()
 {
@@ -241,6 +178,12 @@ ShowUsage()
         echo '------------------------------------------------'
 	echo 'run <file name>   : Runs your python script with'
         echo '                    the Sophia includes in path '
+        echo 'start             : Starts the given system     '
+        echo '          <arg 0>                               '
+        echo '          daemon  : Starts main daemon          ' 
+        echo 'stop              : Stops the given system      '
+        echo '          <arg 0>                               '
+        echo '          daemon  : Stops main daemon           ' 
 	echo '(no-arg)          : This message'
 	echo
 }
@@ -250,6 +193,14 @@ case "$1" in
 # Runs Python Script
 	'run' )
 		Run $2
+	;;
+
+        'start' )
+		Start $2
+	;;
+
+        'stop' )
+		Stop $2
 	;;
 
 	*)
