@@ -216,7 +216,7 @@ Status()
   fi
 }
 
-DIR_PYTHON_SCRIPT=/etc/sophia/scripts/
+DIR_PYTHON_SCRIPT=/etc/sophia/python/
 SCRIPT_PYTHON_RUN=run.sh
 
 Run()
@@ -226,7 +226,7 @@ Run()
     ShowUsage
     exit 1
   else
-    source $DIR_PYTHON_SCRIPT/$SCRIPT_PYTON_RUN $1
+    source $DIR_PYTHON_SCRIPT/$SCRIPT_PYTHON_RUN $1
   fi
 }
 
