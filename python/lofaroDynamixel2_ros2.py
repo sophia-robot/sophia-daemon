@@ -133,9 +133,9 @@ def init(L=None):
   robot.setBaud()
   rclpy.init()
   node = rclpy.create_node('lofaro_dynamixel2_ros2_node')
-  pub  = node.create_publisher(JointState, '/state',1)
-  tor  = node.create_publisher(JointState, '/torque',1)
-  sub  = node.create_subscription(JointState,'/ref', callback, 10)
+  pub  = node.create_publisher(JointState, '/state/pos',1)
+  tor  = node.create_publisher(JointState, '/state/torque',1)
+  sub  = node.create_subscription(JointState,'/ref/pos', callback, 10)
 
   print('Init ......')
   for i in range(10):
