@@ -1,10 +1,13 @@
 from dynamixel_sdk import *                    # Uses Dynamixel SDK library
 import os
+import numpy as np
+
 class LofaroDynamixel2:
   OK      = None
   FAIL    = None
   ENABLE  = None
   DISABLE = None
+
 
   def __init__(self, baud=None, port=None):
     global OK, FAIL, ENABLE, DISABLE
@@ -26,6 +29,13 @@ class LofaroDynamixel2:
     self.LEN_GOAL_POSITION           = 4         # Data Byte Length
     self.ADDR_PRESENT_POSITION       = 132
     self.LEN_PRESENT_POSITION        = 4
+    self.ADDR_PRESENT_TORQUE         = 132
+    self.LEN_PRESENT_TORQUE          = 2
+
+    self.TORQUE_RAW_TO_AMP           = 0.00269
+    self.TORQUE_OFFSET_INT           = 2048
+    self.TORQUE_INT_MIN              = -2048
+    self.TORQUE_INT_MAX              =  2048
 
     if baud == None:
       self.BAUDRATE                    = 1000000
@@ -162,6 +172,28 @@ class LofaroDynamixel2:
     enc, err = self.getPosEnc(the_id)
     deg = self.enc2deg(enc)
     return (deg, err)
+
+  def getInt16(self, val):
+    
+    val16 = val  - self.TORQUE_OFFSET_INT
+    if val16 > self.TORQUE_INT_MAX:
+      val16 = self.TORQUE_INT_MAX
+    elif val16 < self.TORQUE_INT_MIN:
+      val16 = self.TORQUE_INT_MIN 
+    return val16
+
+  def getTorque(self, the_id):
+    torqueRaw, err = self.getTorqueRaw(the_id)
+    if err == self.OK:
+      torqueRaw = self.getInt16(torqueRaw)
+      torque = torqueRaw * self.TORQUE_RAW_TO_AMP
+      return (torque, err)
+    return (torqueRaw, err)
+
+  def getTorqueRaw(self, the_id):
+    # Read present position
+    dxl_present_torque, dxl_comm_result, dxl_error = self.packetHandler.read2ByteTxRx(self.portHandler, the_id, self.ADDR_PRESENT_TORQUE)
+    return (dxl_present_torque, self.getDxlError(dxl_comm_result, dxl_error))
 
 
   def getPosEnc(self, the_id):

@@ -8,6 +8,7 @@ robot = None
 node  = None
 pub   = None
 sub   = None
+tor   = None
 
 ENUM_NAME          = 0
 ENUM_TORQUE_EN_0   = 1
@@ -53,6 +54,7 @@ FILTER_REF_GOAL = None
 FILTER_L        = None
 FILTER_MOT_NUM  = len(IDs)
 STATE_POS       = None
+STATE_TORQUE    = None
 
 FILTER_L_DEFAULT = 50
 
@@ -104,7 +106,7 @@ def stagePos(the_id, r):
     return err
 
 def init(L=None):
-  global robot, node, pub, sub, FILTER_REF_0, FILTER_REF_1, FILTER_L, STATE_POS, FILTER_REF_GOAL
+  global robot, node, pub, sub, tor, FILTER_REF_0, FILTER_REF_1, FILTER_L, STATE_POS, FILTER_REF_GOAL, STATE_TORQUE
   
   if (L==None):
     L = FILTER_L_DEFAULT
@@ -117,11 +119,14 @@ def init(L=None):
   FILTER_REF_1    = [0.0]
   FILTER_REF_GOAL = [0.0]
   STATE_POS       = [0.0]
+  STATE_TORQUE    = [0.0]
   for i in range(1, FILTER_MOT_NUM):
     FILTER_REF_0.append(0.0)
     FILTER_REF_1.append(0.0)
     FILTER_REF_GOAL.append(0.0)
     STATE_POS.append(0.0)
+    STATE_TORQUE.append(0.0)
+
 
   robot = ld2.LofaroDynamixel2(baud=3000000, port='/dev/ttyUSB0')
   robot.open()
@@ -129,6 +134,7 @@ def init(L=None):
   rclpy.init()
   node = rclpy.create_node('lofaro_dynamixel2_ros2_node')
   pub  = node.create_publisher(JointState, '/state',1)
+  tor  = node.create_publisher(JointState, '/torque',1)
   sub  = node.create_subscription(JointState,'/ref', callback, 10)
 
   print('Init ......')
@@ -210,12 +216,30 @@ def getPos():
   pub.publish(state) 
   pass
 
+def getTorque():
+  global STATE_TORQUE
+  state = JointState()
+  for p in IDs:
+    if p[ENUM_ENABLED]:
+      name        = p[ENUM_NAME]
+      the_id      = p[ENUM_STATE]
+      mot_index   = p[ENUM_MOT_INDEX]
+      torque, err    = robot.getTorque(the_id)
+      if err == robot.OK:
+        state.name.append(name)
+        state.effort.append(torque)
+        STATE_TORQUE[mot_index] = torque
+
+  tor.publish(state) 
+  pass
+
 def loop():
   i = 0
   while True:
     doFilterRef()
     putPos()
     getPos()
+    getTorque()
     sleep()
     print(".",end='')
     i = i+1
