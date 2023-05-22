@@ -1,5 +1,6 @@
 import time
 import sophia_h as sh
+import numpy as np
 
 import rclpy
 from geometry_msgs.msg import Twist
@@ -38,12 +39,18 @@ def loop():
     f0 = float(spl[0])
     f1 = float(spl[1])
     f2 = float(spl[2])
-    z = f1
+
     x = f0
-    y = -f2 
+    y = f1
+    z = f2 
+
+    pitch = -180.0 * np.arctan2(x, np.sqrt(y*y + z*z)) / np.pi
+    roll  = 180.0 * np.arctan2(y, np.sqrt(x*x + z*z)) / np.pi
     msg.linear.x = x
     msg.linear.y = y
     msg.linear.z = z
+    msg.angular.x = roll
+    msg.angular.y = pitch
     pub.publish(msg)
     time.sleep(0.01)
   node.destroy_node()
