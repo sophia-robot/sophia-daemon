@@ -2,7 +2,7 @@ class Sophia:
   ROS_CHAN_REF_POS='/ref/pos'
   ROS_CHAN_STATE_POS='/state/pos'
   ROS_CHAN_STATE_TORQUE='/state/torque'
-
+  ROS_CHAN_STATE_ACC='/state/acc'
   init_name = "none"
   sophia_name = "none"
 

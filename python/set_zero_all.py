@@ -1,4 +1,5 @@
 import time
+import sophia_h as sh
 
 import rclpy
 from sensor_msgs.msg import JointState
@@ -7,12 +8,14 @@ node = None
 pub  = None
 sub  = None
 
+sophia = sh.Sophia()
+
 def init():
   global node, pub, sub
 
   rclpy.init()
   node = rclpy.create_node('test_lofaro_dynamixel2_ros2_node')
-  pub  = node.create_publisher(JointState, '/ref/pos',1)
+  pub  = node.create_publisher(JointState, sophia.ROS_CHAN_REF_POS,1)
 
 def loop():
   global pub
