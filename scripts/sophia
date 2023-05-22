@@ -3,6 +3,7 @@
 # Daniel M. Lofaro (dan@danlofaro.com)
 
 SCREEN_NAME_DAEMON="sophia-process-daemon"
+SCREEN_NAME_ACC="sophia-process-acc"
 ROOT_DIR=/etc/visir/
 ROOT_DIR_ROBOT_REF=$ROOT_DIR/python
 ROOT_DIR_ROBOT=$ROOT_DIR/python
@@ -18,66 +19,15 @@ DIR_PYTHON_SCRIPT=/etc/sophia/python/
 SCRIPT_PYTHON_RUN=run.sh
 PYTHON_SOPHIA_DAEMON_ROS=lofaroDynamixel2_ros2.py
 SCRIPT_SOPHIA_DAEMON_ROS=sophia-daemon.sh
+SCRIPT_SOPHIA_ACC_ROS=sophia-acc.sh
 DIR_TMP=/tmp
 SOPHIA_TMP=$DIR_TMP/sophia-tmp.sh
 touch $SOPHIA_TMP
 chmod +x $SOPHIA_TMP
 
 SOPHIA_SERIAL=/dev/ttyUSB0
+SOPHIA_ACC_SERIAL=/dev/ttyACM0
 
-Enable()
-{
-  case "$1" in 
-        'robot')
-		Enable fwd
-		Enable aft
-	;;
-	'fwd')
-		THE_BIN=$BIN_ENABLE_FWD
-                THE_ROOT_DIR=$ROOT_DIR_ROBOT_REF
-	;;
-
-	'aft')
-		THE_BIN=$BIN_ENABLE_AFT
-                THE_ROOT_DIR=$ROOT_DIR_ROBOT_REF
-	;;
-
-	*)
-		ShowUsage
-		exit 1
-	;;
-   esac
-   cd $ROOT_DIR_ROBOT_REF
-   source $THE_BIN
-   
-}
-
-Disable()
-{
-  case "$1" in 
-	'robot')
-		Disable fwd
-		Disable aft
-	;;
-	'fwd')
-		THE_BIN=$BIN_DISABLE_FWD
-                THE_ROOT_DIR=$ROOT_DIR_ROBOT_REF
-	;;
-
-	'aft')
-		THE_BIN=$BIN_DISABLE_AFT
-                THE_ROOT_DIR=$ROOT_DIR_ROBOT_REF
-	;;
-
-	*)
-		ShowUsage
-		exit 1
-	;;
-   esac
-   cd $ROOT_DIR_ROBOT_REF
-   source $THE_BIN
-   
-}
 
 Start()
 {
@@ -85,12 +35,20 @@ Start()
   # Robot Side
 	'robot' )
           	Start daemon
+		Start acc
 	;;
 
 	'daemon' )
 		setserial $SOPHIA_SERIAL low_latency
                 THE_NAME=$SCREEN_NAME_DAEMON
                 THE_BIN=$SCRIPT_SOPHIA_DAEMON_ROS
+                THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
+	;;
+
+	'acc' )
+		setserial $SOPHIA_ACC_SERIAL low_latency
+                THE_NAME=$SCREEN_NAME_ACC
+                THE_BIN=$SCRIPT_SOPHIA_ACC_ROS
                 THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
 	;;
 
@@ -114,13 +72,16 @@ Stop()
   case "$1" in
   # Robot Side
 	'robot' )
-                Stop ref
-     		Stop state
-		Stop sonar
+                Stop daemon
+     		Stop acc
 	;;
 	'daemon' )
                 THE_NAME=$SCREEN_NAME_DAEMON
 	;;
+	'acc' )
+                THE_NAME=$SCREEN_NAME_ACC
+	;;
+
 
 	*)
 		ShowUsage
@@ -137,12 +98,14 @@ Status()
   case "$1" in
   # Robot Side
 	'robot' )
-                Status ref
-		Status state
-		Status sonar
+                Status daemon
+		Status acc
 	;;
 	'daemon' )
                 THE_NAME=$SCREEN_NAME_DAEMON
+	;;
+	'acc' )
+                THE_NAME=$SCREEN_NAME_ACC
 	;;
 
 	*)
@@ -184,9 +147,11 @@ ShowUsage()
         echo 'start             : Starts the given system     '
         echo '          <arg 0>                               '
         echo '          daemon  : Starts main daemon          ' 
+        echo '          acc     : Starts accelemator process  ' 
         echo 'stop              : Stops the given system      '
         echo '          <arg 0>                               '
         echo '          daemon  : Stops main daemon           ' 
+        echo '          acc     : Stops accelemator process   ' 
 	echo '(no-arg)          : This message'
 	echo
 }
@@ -204,6 +169,10 @@ case "$1" in
 
         'stop' )
 		Stop $2
+	;;
+
+        'status' )
+		Status $2
 	;;
 
 	*)
