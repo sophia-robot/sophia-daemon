@@ -24,4 +24,46 @@ $ sophia stop robot
 $ sophia run foo.py
 ```
 
+# ROS 2 Topics
+## Feedforward
+Topic:
+```
+/ref/pos
+```
+Type:
+```
+JointState [sensor_msgs.msg]
+```
+
+## Feedback
+
+### Position
+Topic:
+```
+/state/pos
+```
+Type:
+```
+JointState [sensor_msgs.msg]
+```
+
+### Torque
+Topic:
+```
+/state/torque
+```
+Type:
+```
+JointState [sensor_msgs.msg]
+```
+
+### Accelerometer
+Topic:
+```
+/state/acc
+```
+Type:
+```
+Twist [geometry_msgs.msg]
+```
 
