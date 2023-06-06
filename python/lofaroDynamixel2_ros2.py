@@ -58,7 +58,7 @@ FILTER_MOT_NUM  = len(IDs)
 STATE_POS       = None
 STATE_TORQUE    = None
 
-FILTER_L_DEFAULT = 50
+FILTER_L_DEFAULT = 3
 
 def callback(msg):
   global FILTER_REF_GOAL
@@ -184,7 +184,7 @@ def torqueEnable():
         print(err)
 
 t0 = time.time()
-T_des = 0.05
+T_des = 0.08
 def sleep():
   global t0, node
   t1 = time.time()
