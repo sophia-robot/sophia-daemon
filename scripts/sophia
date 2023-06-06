@@ -146,12 +146,22 @@ ShowUsage()
         echo '                    the Sophia includes in path '
         echo 'start             : Starts the given system     '
         echo '          <arg 0>                               '
+        echo '          robot   : Starts all daemons below    '
         echo '          daemon  : Starts main daemon          ' 
         echo '          acc     : Starts accelemator process  ' 
         echo 'stop              : Stops the given system      '
         echo '          <arg 0>                               '
+        echo '          robot   : Stops all daemons below     '
         echo '          daemon  : Stops main daemon           ' 
         echo '          acc     : Stops accelemator process   ' 
+        echo 'run               : Runs a python script in the '
+        echo '                    Sophia work space           '
+        echo '          <arg 0>                               '
+        echo '          foo.py  : any set of bash arguements  '
+#        echo 'run               : Runs a command in the sophia'
+#        echo '                    work space                  '
+#        echo '          <arg 0>                               '
+#        echo '          a0..aN  : any set of bash arguements  '
 	echo '(no-arg)          : This message'
 	echo
 }
@@ -160,7 +170,7 @@ ShowUsage()
 case "$1" in
 # Runs Python Script
 	'run' )
-		Run $2
+		Run ${@:2}
 	;;
 
         'start' )
