@@ -3,6 +3,8 @@ import time
 
 import rclpy
 from sensor_msgs.msg import JointState
+import math
+
 
 robot = None
 node  = None
@@ -19,7 +21,7 @@ ENUM_ENABLED       = 5
 ENUM_POS_MAX       = 6
 ENUM_POS_MIN       = 7
 ENUM_MOT_INDEX     = 8
-
+ENUM_POS_OFFSET    = 9
 the_id_i = -1
 def getNextI():
   global the_id_i
@@ -29,23 +31,23 @@ def getNextI():
 ENABLE_RIGHT = True
 ENABLE_LEFT  = True
 
-#        name   torque_en_0  torque_en_1  pos_id  enc_id  enabled         max_pos (rad)   min_pos (rad)  filter_id
-IDs = { ("lhy", 0x30,        0x31,        0x3c,   0x30,   ENABLE_LEFT ,   1.0,            -1.0,          getNextI()),
-        ("lhr", 0x32,        0x33,        0x3d,   0x32,   ENABLE_LEFT ,   0.2,            -0.2,          getNextI()),
-        ("lhp", 0x34,        0x35,        0x3e,   0x34,   ENABLE_LEFT ,   0.7,            -1.3,          getNextI()),
-        ("lkp", 0x36,        0x37,        0x3f,   0x36,   ENABLE_LEFT ,   1.2,             0.0,          getNextI()),
-        ("lay", 0x38,        0x38,        0x38,   0x38,   ENABLE_LEFT ,   1.0,            -1.0,          getNextI()),
-        ("lar", 0x39,        0x39,        0x39,   0x39,   ENABLE_LEFT ,   1.0,            -1.0,          getNextI()),
-        ("lap", 0x3a,        0x3a,        0x3a,   0x3a,   ENABLE_LEFT ,   0.4,            -1.0,          getNextI()),
-        ("ltp", 0x3b,        0x3b,        0x3b,   0x3b,   ENABLE_LEFT ,   1.0,            -1.0,          getNextI()), 
-        ("rhy", 0x10,        0x11,        0x1c,   0x10,   ENABLE_RIGHT ,   1.0,            -1.0,          getNextI()),
-        ("rhr", 0x12,        0x13,        0x1d,   0x12,   ENABLE_RIGHT ,   0.2,            -0.2,          getNextI()),
-        ("rhp", 0x14,        0x15,        0x1e,   0x14,   ENABLE_RIGHT ,   0.7,            -1.3,          getNextI()),
-        ("rkp", 0x16,        0x17,        0x1f,   0x16,   ENABLE_RIGHT ,   1.2,             0.0,          getNextI()),
-        ("ray", 0x18,        0x18,        0x18,   0x18,   ENABLE_RIGHT ,   1.0,            -1.0,          getNextI()),
-        ("rar", 0x19,        0x19,        0x19,   0x19,   ENABLE_RIGHT ,   1.0,            -1.0,          getNextI()),
-        ("rap", 0x1a,        0x1a,        0x1a,   0x1a,   ENABLE_RIGHT ,   0.4,            -1.0,          getNextI()),
-        ("rtp", 0x1b,        0x1b,        0x1b,   0x1b,   ENABLE_RIGHT ,   1.0,            -1.0,          getNextI()) 
+#        name   torque_en_0  torque_en_1  pos_id  enc_id  enabled         max_pos (rad)   min_pos (rad)  filter_id  offset (deg)
+IDs = { ("lhy", 0x30,        0x31,        0x3c,   0x30,   ENABLE_LEFT ,   1.0,            -1.0,          getNextI(),   -3.4     ),
+        ("lhr", 0x32,        0x33,        0x3d,   0x32,   ENABLE_LEFT ,   0.2,            -0.2,          getNextI(),    0.0     ),
+        ("lhp", 0x34,        0x35,        0x3e,   0x34,   ENABLE_LEFT ,   0.7,            -1.3,          getNextI(),    0.0     ),
+        ("lkp", 0x36,        0x37,        0x3f,   0x36,   ENABLE_LEFT ,   1.2,             0.0,          getNextI(),    0.0     ),
+        ("lay", 0x38,        0x38,        0x38,   0x38,   ENABLE_LEFT ,   1.0,            -1.0,          getNextI(),    0.0     ),
+        ("lar", 0x39,        0x39,        0x39,   0x39,   ENABLE_LEFT ,   1.0,            -1.0,          getNextI(),    0.0     ),
+        ("lap", 0x3a,        0x3a,        0x3a,   0x3a,   ENABLE_LEFT ,   0.4,            -1.0,          getNextI(),    0.0     ),
+        ("ltp", 0x3b,        0x3b,        0x3b,   0x3b,   ENABLE_LEFT ,   1.0,            -1.0,          getNextI(),    0.0     ), 
+        ("rhy", 0x10,        0x11,        0x1c,   0x10,   ENABLE_RIGHT,   1.0,            -1.0,          getNextI(),  -13.4     ),
+        ("rhr", 0x12,        0x13,        0x1d,   0x12,   ENABLE_RIGHT,   0.2,            -0.2,          getNextI(),    0.0     ),
+        ("rhp", 0x14,        0x15,        0x1e,   0x14,   ENABLE_RIGHT,   0.7,            -1.3,          getNextI(),    0.0     ),
+        ("rkp", 0x16,        0x17,        0x1f,   0x16,   ENABLE_RIGHT,   1.2,             0.0,          getNextI(),    0.0     ),
+        ("ray", 0x18,        0x18,        0x18,   0x18,   ENABLE_RIGHT,   1.0,            -1.0,          getNextI(),    0.0     ),
+        ("rar", 0x19,        0x19,        0x19,   0x19,   ENABLE_RIGHT,   1.0,            -1.0,          getNextI(),    0.0     ),
+        ("rap", 0x1a,        0x1a,        0x1a,   0x1a,   ENABLE_RIGHT,   0.4,            -1.0,          getNextI(),    0.0     ),
+        ("rtp", 0x1b,        0x1b,        0x1b,   0x1b,   ENABLE_RIGHT,   1.0,            -1.0,          getNextI(),    0.0     ) 
       }
 
 FILTER_REF_0    = None
@@ -56,7 +58,7 @@ FILTER_MOT_NUM  = len(IDs)
 STATE_POS       = None
 STATE_TORQUE    = None
 
-FILTER_L_DEFAULT = 50
+FILTER_L_DEFAULT = 3
 
 def callback(msg):
   global FILTER_REF_GOAL
@@ -90,6 +92,8 @@ def doFilterRef(mode=None):
       FILTER_REF_0[mot_index] = r
       err = stagePos(the_id, r)  
       #err = robot.stagePos(the_id, r)  
+def deg2rad(val):
+  return val / 180.0 * math.pi
 
 def stagePos(the_id, r):
     err = 0
@@ -98,6 +102,7 @@ def stagePos(the_id, r):
 
       if the_id == p[ENUM_REF]:
         if enabled:
+          r = r + deg2rad(p[ENUM_POS_OFFSET])
           if r > p[ENUM_POS_MAX]:
             r = p[ENUM_POS_MAX]
           if r < p[ENUM_POS_MIN]:
@@ -179,7 +184,7 @@ def torqueEnable():
         print(err)
 
 t0 = time.time()
-T_des = 0.03
+T_des = 0.08
 def sleep():
   global t0, node
   t1 = time.time()
@@ -241,7 +246,7 @@ def loop():
     getPos()
     getTorque()
     sleep()
-    print(".",end='')
+    print(".",end='', flush=True)
     i = i+1
     if i > 100:
       print()
