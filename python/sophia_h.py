@@ -8,7 +8,7 @@ class Sophia:
 
   NAME = 0
 
-  ENABLE_RIGHT = True
+  ENABLE_RIGHT = False
   ENABLE_LEFT  = True
 
 
