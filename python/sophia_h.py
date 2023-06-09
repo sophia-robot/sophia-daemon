@@ -14,7 +14,7 @@ class Sophia:
 
 
   #        name   torque_en_0  torque_en_1  pos_id  enc_id  enabled         max_pos (rad)   min_pos (rad)  filter_id  offset (deg)
-  IDs = { ("lhy", 0x30,        0x31,        0x3c,   0x30,   ENABLE_LEFT ,   1.0,            -1.0,                  0,  -14.4     ),
+  IDs = { ("lhy", 0x30,        0x31,        0x3c,   0x30,   ENABLE_LEFT ,   1.0,            -1.0,                  0,  -19.4     ),
           ("lhr", 0x32,        0x33,        0x3d,   0x32,   ENABLE_LEFT ,   0.2,            -0.2,                  1,    0.0     ),
           ("lhp", 0x34,        0x35,        0x3e,   0x34,   ENABLE_LEFT ,   0.7,            -1.3,                  2,    0.0     ),
           ("lkp", 0x36,        0x37,        0x3f,   0x36,   ENABLE_LEFT ,   1.2,             0.0,                  3,    0.0     ),
