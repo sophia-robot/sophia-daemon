@@ -39,7 +39,7 @@ class Sophia:
     self.sophia_name = "sophia_name"
     print("made the class")
 
-  def _init_(self):
+  def __init__(self):
     print("in init")
     self.init_name = "init_name"
 
