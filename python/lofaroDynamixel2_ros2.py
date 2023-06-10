@@ -3,6 +3,7 @@ import time
 
 import rclpy
 from sensor_msgs.msg import JointState
+from std_msgs.msg import Float64
 import math
 
 import sophia_h as sh
@@ -13,6 +14,7 @@ node  = None
 pub   = None
 sub   = None
 tor   = None
+heart = None
 
 ENUM_NAME          = 0
 ENUM_TORQUE_EN_0   = 1
@@ -94,7 +96,7 @@ def stagePos(the_id, r):
 
 def init(L=None):
   global robot, node, pub, sub, tor, FILTER_REF_0, FILTER_REF_1, FILTER_L, STATE_POS, FILTER_REF_GOAL, STATE_TORQUE
-  
+  global heart
   if (L==None):
     L = FILTER_L_DEFAULT
   elif (L < 0):
@@ -121,6 +123,7 @@ def init(L=None):
   rclpy.init()
   node = rclpy.create_node('lofaro_dynamixel2_ros2_node')
   pub  = node.create_publisher(JointState, '/state/pos',1)
+  heart  = node.create_publisher(Float64, sophia.ROS_CHAN_HEART,1)
   tor  = node.create_publisher(JointState, '/state/torque',1)
   sub  = node.create_subscription(JointState,'/ref/pos', callback, 10)
 
@@ -166,7 +169,7 @@ def torqueEnable():
         print(err)
 
 t0 = time.time()
-T_des = 0.02
+T_des = 0.001
 def sleep():
   global t0, node
   t1 = time.time()
@@ -220,18 +223,25 @@ def getTorque():
   tor.publish(state) 
   pass
 
+def heartBeat():
+  global heart
+  t = Float64()
+  t.data = time.time()
+  heart.publish(t)
+
 def loop():
   i = 0
   while True:
     doFilterRef()
     putPos()
-    getPos()
-    getTorque()
-    sleep()
-    print(".",end='', flush=True)
+#    getPos()
+    heartBeat()
+#    getTorque()
+#    sleep()
+#    print(".",end='', flush=True)
     i = i+1
     if i > 100:
-      print()
+#      print()
       i = 0
 
 init()

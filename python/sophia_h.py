@@ -3,12 +3,13 @@ class Sophia:
   ROS_CHAN_STATE_POS='/state/pos'
   ROS_CHAN_STATE_TORQUE='/state/torque'
   ROS_CHAN_STATE_ACC='/state/acc'
+  ROS_CHAN_HEART='/heart/beat'
   init_name = "none"
   sophia_name = "none"
 
   NAME = 0
 
-  ENABLE_RIGHT = False
+  ENABLE_RIGHT = True
   ENABLE_LEFT  = True
 
 
