@@ -169,7 +169,7 @@ def torqueEnable():
         print(err)
 
 t0 = time.time()
-T_des = 0.001
+T_des = 0.018
 def sleep():
   global t0, node
   t1 = time.time()
@@ -189,36 +189,71 @@ def putPos():
   robot.putPos()
   pass
 
-def getPos():
+def getPos(the_mot=None):
+  global STATE_POS
+  state = JointState()
+  if the_mot == None:
+    for p in IDs:
+      if p[ENUM_ENABLED]:
+        name        = p[ENUM_NAME]
+        the_id      = p[ENUM_STATE]
+        mot_index   = p[ENUM_MOT_INDEX]
+        pos, err    = robot.getPos(the_id)
+        if err == robot.OK:
+          STATE_POS[mot_index] = pos
+  elif (the_mot >= 0) & (the_mot < len(IDs)):
+    p = list(IDs)[the_mot]
+    if p[ENUM_ENABLED]:
+        name        = p[ENUM_NAME]
+        the_id      = p[ENUM_STATE]
+        mot_index   = p[ENUM_MOT_INDEX]
+        pos, err    = robot.getPos(the_id)
+        if err == robot.OK:
+          STATE_POS[mot_index] = pos
+
+def postPos():
   global STATE_POS
   state = JointState()
   for p in IDs:
-    if p[ENUM_ENABLED]:
-      name        = p[ENUM_NAME]
-      the_id      = p[ENUM_STATE]
-      mot_index   = p[ENUM_MOT_INDEX]
-      pos, err    = robot.getPos(the_id)
-      if err == robot.OK:
-        state.name.append(name)
-        state.position.append(pos)
-        STATE_POS[mot_index] = pos
-
+    mot_index   = p[ENUM_MOT_INDEX]
+    name        = p[ENUM_NAME]
+    pos         = STATE_POS[mot_index]
+    state.name.append(name)
+    state.position.append(pos)
   pub.publish(state) 
   pass
 
-def getTorque():
+def getTorque(the_mot=None):
   global STATE_TORQUE
   state = JointState()
-  for p in IDs:
+  if the_mot == None:
+    for p in IDs:
+      if p[ENUM_ENABLED]:
+        name        = p[ENUM_NAME]
+        the_id      = p[ENUM_STATE]
+        mot_index   = p[ENUM_MOT_INDEX]
+        torque, err    = robot.getTorque(the_id)
+        if err == robot.OK:
+          STATE_TORQUE[mot_index] = torque
+  elif (the_mot >= 0) & (the_mot < len(IDs)):
+    p = list(IDs)[the_mot]
     if p[ENUM_ENABLED]:
       name        = p[ENUM_NAME]
       the_id      = p[ENUM_STATE]
       mot_index   = p[ENUM_MOT_INDEX]
-      torque, err    = robot.getTorque(the_id)
+      torque, err = robot.getTorque(the_id)
       if err == robot.OK:
-        state.name.append(name)
-        state.effort.append(torque)
         STATE_TORQUE[mot_index] = torque
+
+def postTorque():
+  global STATE_TORQUE
+  state = JointState()
+  for p in IDs:
+    mot_index   = p[ENUM_MOT_INDEX]
+    name        = p[ENUM_NAME]
+    torque      = STATE_TORQUE[mot_index]
+    state.name.append(name)
+    state.position.append(torque)
 
   tor.publish(state) 
   pass
@@ -229,18 +264,22 @@ def heartBeat():
   t.data = time.time()
   heart.publish(t)
 
+STATE_SPLIT_I=4
 def loop():
   i = 0
   while True:
     doFilterRef()
     putPos()
-#    getPos()
+    for j in range(i, len(IDs), STATE_SPLIT_I):
+      getPos(j)
+      getTorque(j)
+    postPos()
+    postTorque()
     heartBeat()
-#    getTorque()
-#    sleep()
+    sleep()
 #    print(".",end='', flush=True)
     i = i+1
-    if i > 100:
+    if i > STATE_SPLIT_I:
 #      print()
       i = 0
 
