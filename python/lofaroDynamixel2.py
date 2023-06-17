@@ -231,3 +231,8 @@ class LofaroDynamixel2:
   def deg2enc(self, deg):
     rad = self.deg2rad(deg)
     return self.rad2enc(rad)
+
+  def ping(self, the_id):
+    DXL_ID = the_id
+    dxl_model_number, dxl_comm_result, dxl_error = self.packetHandler.ping(self.portHandler, DXL_ID)
+    return DXL_ID, self.getDxlError(dxl_comm_result, dxl_error)
