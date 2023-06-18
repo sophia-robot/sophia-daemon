@@ -23,7 +23,8 @@ class Sophia:
   ENUM_MOT_INDEX     = 8
   ENUM_POS_OFFSET    = 9
 
-
+  OK = False
+  FAIL = True
 
   #        name   torque_en_0  torque_en_1  pos_id  enc_id  enabled         max_pos (rad)   min_pos (rad)  filter_id  offset (deg)
   IDs = { ("lhy", 0x30,        0x31,        0x3c,   0x30,   ENABLE_LEFT ,   1.0,            -1.0,                  0,  -19.4     ),

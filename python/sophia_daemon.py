@@ -152,7 +152,7 @@ class SophiaDaemon:
           print(err)
 
   def sleep(self):
-    if self.t0 == None
+    if self.t0 == None:
       self.t0 = self.time.time()
     t1 = self.time.time()
     dt = t1 - self.t0
