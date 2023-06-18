@@ -25,7 +25,7 @@ class SophiaDaemon:
     self.T_des = T
 
     self.FILTER_L_DEFAULT = 3
-    self.FILTER_MOT_NUM  = 0 #len(self.IDs)
+    self.FILTER_MOT_NUM  = 255 #len(self.IDs)
 
     if (L==None):
       L = self.FILTER_L_DEFAULT
@@ -34,18 +34,7 @@ class SophiaDaemon:
   
     self.FILTER_L = L
 
-    self.FILTER_REF_0    = [0.0]  
-    self.FILTER_REF_1    = [0.0]
-    self.FILTER_REF_GOAL = [0.0]
-    self.STATE_POS       = [0.0]
-    self.STATE_TORQUE    = [0.0]
-    for i in range(1, self.FILTER_MOT_NUM):
-      self.FILTER_REF_0.append(0.0)
-      self.FILTER_REF_1.append(0.0)
-      self.FILTER_REF_GOAL.append(0.0)
-      self.STATE_POS.append(0.0)
-      self.STATE_TORQUE.append(0.0)
-
+    self.zeroFilter()
 
     self.robot = self.ld2.LofaroDynamixel2(baud=baud, port=port)
     self.robot.open()
@@ -69,6 +58,19 @@ class SophiaDaemon:
       self.FILTER_REF_GOAL[i] = self.STATE_POS[i]
 
 
+  def zeroFilter(self)
+    self.FILTER_REF_0    = [0.0]  
+    self.FILTER_REF_1    = [0.0]
+    self.FILTER_REF_GOAL = [0.0]
+    self.STATE_POS       = [0.0]
+    self.STATE_TORQUE    = [0.0]
+    for i in range( self.FILTER_MOT_NUM ):
+      self.FILTER_REF_0.append(0.0)
+      self.FILTER_REF_1.append(0.0)
+      self.FILTER_REF_GOAL.append(0.0)
+      self.STATE_POS.append(0.0)
+      self.STATE_TORQUE.append(0.0)
+
 
 
   def callback(self, msg):
@@ -82,7 +84,8 @@ class SophiaDaemon:
             name        = p[self.ENUM_NAME]
             the_id      = p[self.ENUM_REF]
             enabled     = p[self.ENUM_ENABLED]
-            mot_index   = p[self.ENUM_MOT_INDEX]
+            mot_index   = the_id
+            #mot_index   = p[self.ENUM_MOT_INDEX]
             name2       = m.name[i]
             if (name2 == name):
               self.FILTER_REF_GOAL[mot_index] = pos
@@ -96,7 +99,8 @@ class SophiaDaemon:
     err = self.FAIL
     for p in self.IDs:
       the_id      = p[self.ENUM_REF]
-      mot_index   = p[self.ENUM_MOT_INDEX]
+      mot_index   = the_id
+      #mot_index   = p[self.ENUM_MOT_INDEX]
       if p[self.ENUM_ENABLED]:
         r = (self.FILTER_REF_0[mot_index] * (self.FILTER_L - 1.0) + self.FILTER_REF_GOAL[mot_index]) / (self.FILTER_L * 1.0)
         self.FILTER_REF_0[mot_index] = r
@@ -126,7 +130,8 @@ class SophiaDaemon:
       if p[self.ENUM_ENABLED]:
         name        = p[self.ENUM_NAME]
         the_id      = p[self.ENUM_STATE]
-        mot_index   = p[self.ENUM_MOT_INDEX]
+        mot_index   = the_id
+        #mot_index   = p[self.ENUM_MOT_INDEX]
         pos, err    = self.robot.getPos(the_id)
         if err == self.robot.OK:
             self.STATE_POS[mot_index] = pos
@@ -178,7 +183,8 @@ class SophiaDaemon:
         if p[self.ENUM_ENABLED]:
           name        = p[self.ENUM_NAME]
           the_id      = p[self.ENUM_STATE]
-          mot_index   = p[self.ENUM_MOT_INDEX]
+          mot_index   = the_id
+          #mot_index   = p[self.ENUM_MOT_INDEX]
           pos, err    = self.robot.getPos(the_id)
           if err == self.robot.OK:
             self.STATE_POS[mot_index] = pos
@@ -187,7 +193,8 @@ class SophiaDaemon:
       if p[self.ENUM_ENABLED]:
         name        = p[self.ENUM_NAME]
         the_id      = p[self.ENUM_STATE]
-        mot_index   = p[self.ENUM_MOT_INDEX]
+        mot_index   = the_id
+        #mot_index   = p[self.ENUM_MOT_INDEX]
         pos, err    = self.robot.getPos(the_id)
         if err == self.robot.OK:
           self.STATE_POS[mot_index] = pos
@@ -195,7 +202,9 @@ class SophiaDaemon:
   def postPos(self):
     state = self.JointState()
     for p in self.IDs:
-      mot_index   = p[self.ENUM_MOT_INDEX]
+      the_id      = p[self.ENUM_STATE]
+      mot_index   = the_id
+      #mot_index   = p[self.ENUM_MOT_INDEX]
       name        = p[self.ENUM_NAME]
       pos         = self.STATE_POS[mot_index]
       self.state.name.append(name)
@@ -210,7 +219,8 @@ class SophiaDaemon:
         if p[self.ENUM_ENABLED]:
           name        = p[self.ENUM_NAME]
           the_id      = p[self.ENUM_STATE]
-          mot_index   = p[self.ENUM_MOT_INDEX]
+          mot_index   = the_id
+          #mot_index   = p[self.ENUM_MOT_INDEX]
           torque, err = self.robot.getTorque(the_id)
           if err == robot.OK:
             self.STATE_TORQUE[mot_index] = torque
@@ -219,7 +229,8 @@ class SophiaDaemon:
       if p[self.ENUM_ENABLED]:
         name        = p[self.ENUM_NAME]
         the_id      = p[self.ENUM_STATE]
-        mot_index   = p[self.ENUM_MOT_INDEX]
+        mot_index   = the_id
+        #mot_index   = p[self.ENUM_MOT_INDEX]
         torque, err = self.robot.getTorque(the_id)
         if err == self.robot.OK:
           self.STATE_TORQUE[mot_index] = torque
@@ -227,7 +238,9 @@ class SophiaDaemon:
   def postTorque(self):
     state = self.JointState()
     for p in IDs:
-      mot_index   = p[self.ENUM_MOT_INDEX]
+      the_id      = p[self.ENUM_STATE]
+      mot_index   = the_id
+      #mot_index   = p[self.ENUM_MOT_INDEX]
       name        = p[self.ENUM_NAME]
       torque      = self.STATE_TORQUE[mot_index]
       self.state.name.append(name)
@@ -275,19 +288,18 @@ class SophiaDaemon:
 
   def getActiveMot(self):
     ret = self.FAIL
-    if self.IDs == None:
-      self.IDs = []
-      for p in self.IDs_orig:
+    self.IDs = []
+    for p in self.IDs_orig:
         if p[self.ENUM_ENABLED]:
           the_id      = p[self.ENUM_STATE]
           en = self.isMotActive(the_id)
           if en == self.OK:
             self.IDs.append(p)
+#    self.FILTER_MOT_NUM  = len(self.IDs)
     return ret
 
   def setup(self):
     self.getActiveMot()
-    self.FILTER_MOT_NUM  = len(self.IDs)
 
 
   def run(self, SPLIT=None):
