@@ -12,6 +12,17 @@ class Sophia:
   ENABLE_RIGHT = True
   ENABLE_LEFT  = True
 
+  ENUM_NAME          = 0
+  ENUM_TORQUE_EN_0   = 1
+  ENUM_TORQUE_EN_1   = 2
+  ENUM_REF           = 3
+  ENUM_STATE         = 4
+  ENUM_ENABLED       = 5
+  ENUM_POS_MAX       = 6
+  ENUM_POS_MIN       = 7
+  ENUM_MOT_INDEX     = 8
+  ENUM_POS_OFFSET    = 9
+
 
 
   #        name   torque_en_0  torque_en_1  pos_id  enc_id  enabled         max_pos (rad)   min_pos (rad)  filter_id  offset (deg)
