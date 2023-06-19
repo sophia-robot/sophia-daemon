@@ -1,8 +1,27 @@
 #!/usr/bin/env python
 
+# try this: https://github.com/ros2/ros1_bridge
+
 class HansonWalking:
   import rospy
   from std_msgs.msg import String
+
+  joints = [ 'LeftLegYaw',
+             'LeftLegRoll',
+             'LeftLegPitch',
+             'LeftKneePitch',
+             'leftFootYaw',
+             'LeftFootRoll',
+             'LeftFootPitch',
+             'LeftToePitch',
+             'RightLegYaw',
+             'RightLegRoll',
+             'RightLegPitch',
+             'RightKneePitch',
+             'RightFootYaw',
+             'RightFootRoll',
+             'RightFootPitch',
+             'RightToePitch']
 
   def __init__(self):
     self.topic = '/hr/animations/walking/joint'
@@ -12,9 +31,9 @@ class HansonWalking:
     
   def run():
 
-    self.rospy.init_node('hanson_walking_listener', anonymous=True)
+    node = self.rospy.init_node('hanson_walking_listener', anonymous=True)
 
-    self.rospy.Subscriber(self.topic, String, cb_walking)
+    sub  = self.rospy.Subscriber(self.topic, String, cb_walking)
 
     # spin() simply keeps python from exiting until this node is stopped
     self.rospy.spin()
