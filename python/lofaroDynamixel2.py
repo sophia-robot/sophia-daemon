@@ -90,6 +90,7 @@ class LofaroDynamixel2:
     # sets the baud
     if self.portHandler.setBaudRate(baud):
       self.portHandler.setPacketTimeout(1)
+      self.portHandler.setPacketTimeoutMillis(1)
       self.BAUDRATE = baud
       return self.OK
     else:

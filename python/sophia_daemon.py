@@ -1,6 +1,7 @@
 class SophiaDaemon:
   import lofaroDynamixel2 as ld2
   import time
+  import os
 
   import rclpy
   from sensor_msgs.msg import JointState
@@ -13,7 +14,7 @@ class SophiaDaemon:
   def __init__(self, port='/dev/ttyUSB0', L=3, baud=3000000, T=0.018):
     self.sophia   = self.sh.Sophia()
     self.IDs_orig = self.sophia.IDs
-    self.IDs      = None
+    self.IDs      = []
     self.OK       = self.sophia.OK
     self.FAIL     = self.sophia.FAIL
 
@@ -36,17 +37,31 @@ class SophiaDaemon:
 
     self.zeroFilter()
 
+    self.lowLatency(port)
+
     self.robot = self.ld2.LofaroDynamixel2(baud=baud, port=port)
     self.robot.open()
     self.robot.setBaud()
     self.rclpy.init()
-    node_name   = 'sophia_daemon_'+port
+    port_name   = port.split('/')
+    node_name   = 'sophia_daemon_'+port_name[len(port_name)-1]
+    print(node_name)
     self.node   = self.rclpy.create_node(node_name)
     self.pub    = self.node.create_publisher(self.JointState, self.sophia.ROS_CHAN_STATE_POS,1)
     self.heart  = self.node.create_publisher(self.Float64, self.sophia.ROS_CHAN_HEART,1)
-    self.tor    = node.create_publisher(self.JointState, self.sophia.ROS_CHAN_STATE_TORQUE,1)
-    self.sub    = node.create_subscription(self.JointState,self.sophia.ROS_CHAN_REF_POS, self.callback, 10)
+    self.tor    = self.node.create_publisher(self.JointState, self.sophia.ROS_CHAN_STATE_TORQUE,1)
+    self.sub    = self.node.create_subscription(self.JointState,self.sophia.ROS_CHAN_REF_POS, self.callback, 10)
 
+
+  def lowLatency(self, port=None):
+    if port == None:
+      return self.FAIL
+    buff = 'setserial '+port+' low_latency'
+    print(buff)
+    self.os.system(buff)
+    return self.OK
+
+  def initMot(self):
     print('Init ......')
     for i in range(10):
       self.init_filter_ref()
@@ -54,11 +69,11 @@ class SophiaDaemon:
 
     for i in range(len(self.STATE_POS)):
       self.FILTER_REF_0[i]    = self.STATE_POS[i]
-      self.FILTER_REF_1[i]    = sell.STATE_POS[i]
+      self.FILTER_REF_1[i]    = self.STATE_POS[i]
       self.FILTER_REF_GOAL[i] = self.STATE_POS[i]
 
 
-  def zeroFilter(self)
+  def zeroFilter(self):
     self.FILTER_REF_0    = [0.0]  
     self.FILTER_REF_1    = [0.0]
     self.FILTER_REF_GOAL = [0.0]
@@ -80,12 +95,12 @@ class SophiaDaemon:
         for p in self.IDs:
           pos = m.position[i]
 
-          if p[self.ENUM_ENABLED]:
-            name        = p[self.ENUM_NAME]
-            the_id      = p[self.ENUM_REF]
-            enabled     = p[self.ENUM_ENABLED]
+          if p[self.sophia.ENUM_ENABLED]:
+            name        = p[self.sophia.ENUM_NAME]
+            the_id      = p[self.sophia.ENUM_REF]
+            enabled     = p[self.sophia.ENUM_ENABLED]
             mot_index   = the_id
-            #mot_index   = p[self.ENUM_MOT_INDEX]
+            #mot_index   = p[self.sophia.ENUM_MOT_INDEX]
             name2       = m.name[i]
             if (name2 == name):
               self.FILTER_REF_GOAL[mot_index] = pos
@@ -98,53 +113,56 @@ class SophiaDaemon:
   def doFilterRef(self, mode=None):
     err = self.FAIL
     for p in self.IDs:
-      the_id      = p[self.ENUM_REF]
+      the_id      = p[self.sophia.ENUM_REF]
       mot_index   = the_id
-      #mot_index   = p[self.ENUM_MOT_INDEX]
-      if p[self.ENUM_ENABLED]:
+      #mot_index   = p[self.sophia.ENUM_MOT_INDEX]
+      if p[self.sophia.ENUM_ENABLED]:
         r = (self.FILTER_REF_0[mot_index] * (self.FILTER_L - 1.0) + self.FILTER_REF_GOAL[mot_index]) / (self.FILTER_L * 1.0)
         self.FILTER_REF_0[mot_index] = r
         err = self.stagePos(the_id, r)  
     return err
 
   def deg2rad(self, val):
-    return val / 180.0 * math.pi
+    return val / 180.0 * self.math.pi
 
   def stagePos(self, the_id, r):
     err = self.FAIL
     for p in self.IDs:
-      enabled = p[self.ENUM_ENABLED]
+      enabled = p[self.sophia.ENUM_ENABLED]
 
-      if the_id == p[self.ENUM_REF]:
+      if the_id == p[self.sophia.ENUM_REF]:
         if enabled:
-          r = r + self.deg2rad(p[self.ENUM_POS_OFFSET])
-          if r > p[self.ENUM_POS_MAX]:
-            r = p[self.ENUM_POS_MAX]
-          if r < p[self.ENUM_POS_MIN]:
-            r = p[self.ENUM_POS_MIN]
+          r = r + self.deg2rad(p[self.sophia.ENUM_POS_OFFSET])
+          if r > p[self.sophia.ENUM_POS_MAX]:
+            r = p[self.sophia.ENUM_POS_MAX]
+          if r < p[self.sophia.ENUM_POS_MIN]:
+            r = p[self.sophia.ENUM_POS_MIN]
           err = self.robot.stagePos(the_id, r) | err 
     return err
 
   def init_filter_ref(self):
-    for p in self.IDs:
-      if p[self.ENUM_ENABLED]:
-        name        = p[self.ENUM_NAME]
-        the_id      = p[self.ENUM_STATE]
-        mot_index   = the_id
-        #mot_index   = p[self.ENUM_MOT_INDEX]
-        pos, err    = self.robot.getPos(the_id)
-        if err == self.robot.OK:
+    ret = self.FAIL
+    if len(self.IDs) > 0:
+      ret = self.OK
+      for p in self.IDs:
+        if p[self.sophia.ENUM_ENABLED]:
+          name        = p[self.sophia.ENUM_NAME]
+          the_id      = p[self.sophia.ENUM_STATE]
+          mot_index   = the_id
+          #mot_index   = p[self.sophia.ENUM_MOT_INDEX]
+          pos, err    = self.robot.getPos(the_id)
+          if err == self.robot.OK:
             self.STATE_POS[mot_index] = pos
             self.FILTER_REF_0[mot_index] = pos
             self.FILTER_REF_1[mot_index] = pos
-
+    return ret
 
   def torqueEnable(self):
     for p in self.IDs:
-      name      = p[self.ENUM_NAME]
-      the_id_0  = p[self.ENUM_TORQUE_EN_0]
-      the_id_1  = p[self.ENUM_TORQUE_EN_1]
-      enabled   = p[self.ENUM_ENABLED]
+      name      = p[self.sophia.ENUM_NAME]
+      the_id_0  = p[self.sophia.ENUM_TORQUE_EN_0]
+      the_id_1  = p[self.sophia.ENUM_TORQUE_EN_1]
+      enabled   = p[self.sophia.ENUM_ENABLED]
       if enabled:
         err = self.robot.torque(the_id_0, self.robot.ENABLE)
         print("Torque Enable status for ", end='')
@@ -168,7 +186,7 @@ class SophiaDaemon:
       self.rclpy.spin_once(self.node,timeout_sec=0)
       self.time.sleep(0.002)
       t1 = self.time.time()
-      dt = t1 - t0
+      dt = t1 - self.t0
     self.t0 = t1 
     pass
 
@@ -180,21 +198,21 @@ class SophiaDaemon:
     state = self.JointState()
     if the_mot == None:
       for p in self.IDs:
-        if p[self.ENUM_ENABLED]:
-          name        = p[self.ENUM_NAME]
-          the_id      = p[self.ENUM_STATE]
+        if p[self.sophia.ENUM_ENABLED]:
+          name        = p[self.sophia.ENUM_NAME]
+          the_id      = p[self.sophia.ENUM_STATE]
           mot_index   = the_id
-          #mot_index   = p[self.ENUM_MOT_INDEX]
+          #mot_index   = p[self.sophia.ENUM_MOT_INDEX]
           pos, err    = self.robot.getPos(the_id)
           if err == self.robot.OK:
             self.STATE_POS[mot_index] = pos
     elif (the_mot >= 0) & (the_mot < len(self.IDs)):
       p = list(self.IDs)[the_mot]
-      if p[self.ENUM_ENABLED]:
-        name        = p[self.ENUM_NAME]
-        the_id      = p[self.ENUM_STATE]
+      if p[self.sophia.ENUM_ENABLED]:
+        name        = p[self.sophia.ENUM_NAME]
+        the_id      = p[self.sophia.ENUM_STATE]
         mot_index   = the_id
-        #mot_index   = p[self.ENUM_MOT_INDEX]
+        #mot_index   = p[self.sophia.ENUM_MOT_INDEX]
         pos, err    = self.robot.getPos(the_id)
         if err == self.robot.OK:
           self.STATE_POS[mot_index] = pos
@@ -202,13 +220,13 @@ class SophiaDaemon:
   def postPos(self):
     state = self.JointState()
     for p in self.IDs:
-      the_id      = p[self.ENUM_STATE]
+      the_id      = p[self.sophia.ENUM_STATE]
       mot_index   = the_id
-      #mot_index   = p[self.ENUM_MOT_INDEX]
-      name        = p[self.ENUM_NAME]
+      #mot_index   = p[self.sophia.ENUM_MOT_INDEX]
+      name        = p[self.sophia.ENUM_NAME]
       pos         = self.STATE_POS[mot_index]
-      self.state.name.append(name)
-      self.state.position.append(pos)
+      state.name.append(name)
+      state.position.append(pos)
     self.pub.publish(state) 
     pass
 
@@ -216,35 +234,36 @@ class SophiaDaemon:
     state = self.JointState()
     if the_mot == None:
       for p in self.IDs:
-        if p[self.ENUM_ENABLED]:
-          name        = p[self.ENUM_NAME]
-          the_id      = p[self.ENUM_STATE]
+        if p[self.sophia.ENUM_ENABLED]:
+          name        = p[self.sophia.ENUM_NAME]
+          the_id      = p[self.sophia.ENUM_STATE]
           mot_index   = the_id
-          #mot_index   = p[self.ENUM_MOT_INDEX]
+          #mot_index   = p[self.sophia.ENUM_MOT_INDEX]
           torque, err = self.robot.getTorque(the_id)
           if err == robot.OK:
             self.STATE_TORQUE[mot_index] = torque
     elif (the_mot >= 0) & (the_mot < len(self.IDs)):
       p = list(self.IDs)[the_mot]
-      if p[self.ENUM_ENABLED]:
-        name        = p[self.ENUM_NAME]
-        the_id      = p[self.ENUM_STATE]
+      if p[self.sophia.ENUM_ENABLED]:
+        name        = p[self.sophia.ENUM_NAME]
+        the_id      = p[self.sophia.ENUM_STATE]
         mot_index   = the_id
-        #mot_index   = p[self.ENUM_MOT_INDEX]
+ #       print(the_id)
+        #mot_index   = p[self.sophia.ENUM_MOT_INDEX]
         torque, err = self.robot.getTorque(the_id)
         if err == self.robot.OK:
           self.STATE_TORQUE[mot_index] = torque
 
   def postTorque(self):
     state = self.JointState()
-    for p in IDs:
-      the_id      = p[self.ENUM_STATE]
+    for p in self.IDs:
+      the_id      = p[self.sophia.ENUM_STATE]
       mot_index   = the_id
-      #mot_index   = p[self.ENUM_MOT_INDEX]
-      name        = p[self.ENUM_NAME]
+      #mot_index   = p[self.sophia.ENUM_MOT_INDEX]
+      name        = p[self.sophia.ENUM_NAME]
       torque      = self.STATE_TORQUE[mot_index]
-      self.state.name.append(name)
-      self.state.position.append(torque)
+      state.name.append(name)
+      state.position.append(torque)
 
     self.tor.publish(state) 
     pass
@@ -257,12 +276,44 @@ class SophiaDaemon:
   def loop(self, SPLIT=4):
     STATE_SPLIT_I = SPLIT
     i = 0
+    np = 0
+    nt = 1
     while True:
       self.doFilterRef()
       self.putPos()
+
+
+      tick = self.time.time()
+#      self.getPos(np)
+#      self.getTorque(nt)
+
+      for j in range(i, len(self.IDs),STATE_SPLIT_I):
+        self.getPos(j)
+      for j in range(i, len(self.IDs),STATE_SPLIT_I):
+        self.getTorque(j)
+
+      np += 1
+      nt += 1
+      if np >= len(self.IDs):
+        np = 0
+      if nt >= len(self.IDs):
+        nt = 0
+
+      tock = self.time.time()
+      dt = tock -tick
+#      print(dt, 1.0/dt )
+
+      '''
       for j in range(i, len(self.IDs), STATE_SPLIT_I):
         self.getPos(j)
+
+
+
+      for j in range(i, len(self.IDs), STATE_SPLIT_I):
         self.getTorque(j)
+      '''
+
+
       self.postPos()
       self.postTorque()
       self.heartBeat()
@@ -290,8 +341,8 @@ class SophiaDaemon:
     ret = self.FAIL
     self.IDs = []
     for p in self.IDs_orig:
-        if p[self.ENUM_ENABLED]:
-          the_id      = p[self.ENUM_STATE]
+        if p[self.sophia.ENUM_ENABLED]:
+          the_id      = p[self.sophia.ENUM_STATE]
           en = self.isMotActive(the_id)
           if en == self.OK:
             self.IDs.append(p)
@@ -300,9 +351,10 @@ class SophiaDaemon:
 
   def setup(self):
     self.getActiveMot()
+    self.initMot()
 
 
-  def run(self, SPLIT=None):
+  def run(self, SPLIT=2):
     self.setup()
     self.torqueEnable()
     self.loop(SPLIT=SPLIT)
