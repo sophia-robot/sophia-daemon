@@ -15,6 +15,7 @@ class WALKIN_ROS2_TO_ROS2(Structure):
               ('lap', c_double),
               ('ltp', c_double),
               ('rtp', c_double),
+              ('rhy', c_double),
               ('rhr', c_double),
               ('rhp', c_double),
               ('rkp', c_double),
