@@ -263,7 +263,7 @@ class SophiaDaemon:
       name        = p[self.sophia.ENUM_NAME]
       torque      = self.STATE_TORQUE[mot_index]
       state.name.append(name)
-      state.position.append(torque)
+      state.effort.append(torque)
 
     self.tor.publish(state) 
     pass
@@ -323,12 +323,13 @@ class SophiaDaemon:
         i = 0
 
 
-  def isMotActive(self, mot_id, num_check=10):
+  def isMotActive(self, mot_id, num_check=20):
     ok_i = 0
     for i in range(num_check):
       m_id, got_ping = self.robot.ping(mot_id)
       if got_ping == self.YES:
         ok_i += 1
+        break
 
     ret = self.FAIL
     if ok_i > 0:

@@ -55,7 +55,8 @@ def loop():
   j_bend.name.append("ltp")
   j_bend.position.append(bend)
 
-  for i in range(5):
+  for i in range(20):
+    print(j_bend)
     pub.publish(j_bend)
     time.sleep(0.1)
 
