@@ -3,8 +3,8 @@
 # Daniel M. Lofaro (dan@danlofaro.com)
 
 SCREEN_NAME_DAEMON="sophia-process-daemon"
-SCREEN_NAME_DAEMON_USB0="sophia-process-daemon-usb0"
-SCREEN_NAME_DAEMON_USB1="sophia-process-daemon-usb1"
+SCREEN_NAME_DAEMON_USB_ZERO="sophia-process-daemon-usb-zero"
+SCREEN_NAME_DAEMON_USB_ONE="sophia-process-daemon-usb-one"
 SCREEN_NAME_ACC="sophia-process-acc"
 ROOT_DIR=/etc/visir/
 ROOT_DIR_ROBOT_REF=$ROOT_DIR/python
@@ -21,8 +21,8 @@ DIR_PYTHON_SCRIPT=/etc/sophia/python/
 SCRIPT_PYTHON_RUN=run.sh
 PYTHON_SOPHIA_DAEMON_ROS=lofaroDynamixel2_ros2.py
 SCRIPT_SOPHIA_DAEMON_ROS=sophia-daemon.sh
-SCRIPT_SOPHIA_DAEMON_ROS_USB0=sophia-daemon-usb0.sh
-SCRIPT_SOPHIA_DAEMON_ROS_USB1=sophia-daemon-usb1.sh
+SCRIPT_SOPHIA_DAEMON_ROS_USB_ZERO=sophia-daemon-usb0.sh
+SCRIPT_SOPHIA_DAEMON_ROS_USB_ONE=sophia-daemon-usb1.sh
 SCRIPT_SOPHIA_ACC_ROS=sophia-acc.sh
 DIR_TMP=/tmp
 SOPHIA_TMP=$DIR_TMP/sophia-tmp.sh
@@ -30,40 +30,48 @@ touch $SOPHIA_TMP
 chmod +x $SOPHIA_TMP
 
 SOPHIA_SERIAL=/dev/ttyUSB0
-SOPHIA_SERIAL0=/dev/ttyUSB0
-SOPHIA_SERIAL1=/dev/ttyUSB1
+SOPHIA_SERIAL_ZERO=/dev/ttyUSB0
+SOPHIA_SERIAL_ONE=/dev/ttyUSB1
 SOPHIA_ACC_SERIAL=/dev/ttyACM0
 
+THE_NAME='none'
 
 Start()
-{
+{ 
+  echo "start"
   case "$1" in
   # Robot Side
 	'robot' )
           	Start daemon
 		Start acc
+                exit 0
 	;;
 
 	'daemon' )
-          	Start daemon0
-          	Start daemon1
+          	Start daemonZero
+                sleep 1
+          	Start daemonOne
+                sleep 1
 	;;
+
 	'daemonLegacy' )
 		setserial $SOPHIA_SERIAL low_latency
                 THE_NAME=$SCREEN_NAME_DAEMON
                 THE_BIN=$SCRIPT_SOPHIA_DAEMON_ROS
                 THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
 	;;
-	'daemon0' )
-		setserial $SOPHIA_SERIAL0 low_latency
-                THE_NAME=$SCREEN_NAME_DAEMON_USB0
-                THE_BIN=$SCRIPT_SOPHIA_DAEMON_ROS_USB0
+
+	'daemonZero' )
+		setserial $SOPHIA_SERIAL_ZERO low_latency
+                THE_NAME=$SCREEN_NAME_DAEMON_USB_ZERO
+                THE_BIN=$SCRIPT_SOPHIA_DAEMON_ROS_USB_ZERO
                 THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
 	;;
-	'daemon1' )
-		setserial $SOPHIA_SERIAL1 low_latency
-                THE_NAME=$SCREEN_NAME_DAEMON_USB1
-                THE_BIN=$SCRIPT_SOPHIA_DAEMON_ROS_USB1
+
+	'daemonOne' )
+		setserial $SOPHIA_SERIAL_ONE low_latency
+                THE_NAME=$SCREEN_NAME_DAEMON_USB_ONE
+                THE_BIN=$SCRIPT_SOPHIA_DAEMON_ROS_USB_ONE
                 THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
 	;;
 
@@ -80,10 +88,16 @@ Start()
 	;;
    esac
 
-   if ! screen -list | grep -q $THE_NAME; then
-   # 'Starting Robot Process'
+   echo $THE_NAME
+   echo $THE_BIN
+   if ! screen -ls | grep -q $THE_NAME; then
+     if [ -z $1 ]
+     then
+       echo "screen error"
+     else
      cd $THE_ROOT_DIR
      screen -S $THE_NAME -d -m ./$THE_BIN
+     fi
    fi
    sleep 1
    Status $1
@@ -91,6 +105,7 @@ Start()
 
 Stop()
 {
+  echo "stop"
   case "$1" in
   # Robot Side
 	'robot' )
@@ -98,17 +113,17 @@ Stop()
      		Stop acc
 	;;
 	'daemon' )
-                Stop daemon0
-		Stop daemon1
+                Stop daemonZero
+		Stop daemonOne
 	;;
 	'daemonLegacy' )
                 THE_NAME=$SCREEN_NAME_DAEMON
 	;;
-	'daemon0' )
-                THE_NAME=$SCREEN_NAME_DAEMON_USB0
+	'daemonZero' )
+                THE_NAME=$SCREEN_NAME_DAEMON_USB_ZERO
 	;;
-	'daemon1' )
-                THE_NAME=$SCREEN_NAME_DAEMON_USB1
+	'daemonOne' )
+                THE_NAME=$SCREEN_NAME_DAEMON_USB_ONE
 	;;
 	'acc' )
                 THE_NAME=$SCREEN_NAME_ACC
@@ -127,6 +142,7 @@ Stop()
 
 Status()
 {
+  echo "status"
   case "$1" in
   # Robot Side
 	'robot' )
@@ -134,17 +150,17 @@ Status()
 		Status acc
 	;;
 	'daemon' )
-                Status daemon0
-		Status daemon1
+                Status daemonZero
+		Status daemonOne
 	;;
 	'daemonLegacy' )
                 THE_NAME=$SCREEN_NAME_DAEMON
 	;;
-	'daemon0' )
-                THE_NAME=$SCREEN_NAME_DAEMON0
+	'daemonZero' )
+                THE_NAME=$SCREEN_NAME_DAEMON_ZERO
 	;;
-	'daemon1' )
-                THE_NAME=$SCREEN_NAME_DAEMON1
+	'daemonOne' )
+                THE_NAME=$SCREEN_NAME_DAEMON_ONE
 	;;
 	'acc' )
                 THE_NAME=$SCREEN_NAME_ACC
