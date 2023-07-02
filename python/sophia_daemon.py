@@ -11,7 +11,7 @@ class SophiaDaemon:
   import sophia_h as sh
 
 
-  def __init__(self, port='/dev/ttyUSB0', L=3, baud=3000000, T=0.018):
+  def __init__(self, port='/dev/ttyUSB0', L=3, baud=1000000, T=0.018):
     self.sophia   = self.sh.Sophia()
     self.IDs_orig = self.sophia.IDs
     self.IDs      = []

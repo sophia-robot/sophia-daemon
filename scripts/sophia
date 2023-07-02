@@ -3,6 +3,8 @@
 # Daniel M. Lofaro (dan@danlofaro.com)
 
 SCREEN_NAME_DAEMON="sophia-process-daemon"
+SCREEN_NAME_DAEMON_USB0="sophia-process-daemon-usb0"
+SCREEN_NAME_DAEMON_USB1="sophia-process-daemon-usb1"
 SCREEN_NAME_ACC="sophia-process-acc"
 ROOT_DIR=/etc/visir/
 ROOT_DIR_ROBOT_REF=$ROOT_DIR/python
@@ -19,6 +21,8 @@ DIR_PYTHON_SCRIPT=/etc/sophia/python/
 SCRIPT_PYTHON_RUN=run.sh
 PYTHON_SOPHIA_DAEMON_ROS=lofaroDynamixel2_ros2.py
 SCRIPT_SOPHIA_DAEMON_ROS=sophia-daemon.sh
+SCRIPT_SOPHIA_DAEMON_ROS_USB0=sophia-daemon-usb0.sh
+SCRIPT_SOPHIA_DAEMON_ROS_USB1=sophia-daemon-usb1.sh
 SCRIPT_SOPHIA_ACC_ROS=sophia-acc.sh
 DIR_TMP=/tmp
 SOPHIA_TMP=$DIR_TMP/sophia-tmp.sh
@@ -26,6 +30,8 @@ touch $SOPHIA_TMP
 chmod +x $SOPHIA_TMP
 
 SOPHIA_SERIAL=/dev/ttyUSB0
+SOPHIA_SERIAL0=/dev/ttyUSB0
+SOPHIA_SERIAL1=/dev/ttyUSB1
 SOPHIA_ACC_SERIAL=/dev/ttyACM0
 
 
@@ -39,9 +45,25 @@ Start()
 	;;
 
 	'daemon' )
+          	Start daemon0
+          	Start daemon1
+	;;
+	'daemonLegacy' )
 		setserial $SOPHIA_SERIAL low_latency
                 THE_NAME=$SCREEN_NAME_DAEMON
                 THE_BIN=$SCRIPT_SOPHIA_DAEMON_ROS
+                THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
+	;;
+	'daemon0' )
+		setserial $SOPHIA_SERIAL0 low_latency
+                THE_NAME=$SCREEN_NAME_DAEMON_USB0
+                THE_BIN=$SCRIPT_SOPHIA_DAEMON_ROS_USB0
+                THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
+	;;
+	'daemon1' )
+		setserial $SOPHIA_SERIAL1 low_latency
+                THE_NAME=$SCREEN_NAME_DAEMON_USB1
+                THE_BIN=$SCRIPT_SOPHIA_DAEMON_ROS_USB1
                 THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
 	;;
 
@@ -76,7 +98,17 @@ Stop()
      		Stop acc
 	;;
 	'daemon' )
+                Stop daemon0
+		Stop daemon1
+	;;
+	'daemonLegacy' )
                 THE_NAME=$SCREEN_NAME_DAEMON
+	;;
+	'daemon0' )
+                THE_NAME=$SCREEN_NAME_DAEMON_USB0
+	;;
+	'daemon1' )
+                THE_NAME=$SCREEN_NAME_DAEMON_USB1
 	;;
 	'acc' )
                 THE_NAME=$SCREEN_NAME_ACC
@@ -102,7 +134,17 @@ Status()
 		Status acc
 	;;
 	'daemon' )
+                Status daemon0
+		Status daemon1
+	;;
+	'daemonLegacy' )
                 THE_NAME=$SCREEN_NAME_DAEMON
+	;;
+	'daemon0' )
+                THE_NAME=$SCREEN_NAME_DAEMON0
+	;;
+	'daemon1' )
+                THE_NAME=$SCREEN_NAME_DAEMON1
 	;;
 	'acc' )
                 THE_NAME=$SCREEN_NAME_ACC
