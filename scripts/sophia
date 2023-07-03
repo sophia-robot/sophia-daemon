@@ -6,6 +6,7 @@ SCREEN_NAME_DAEMON="sophia-process-daemon"
 SCREEN_NAME_DAEMON_USB_ZERO="sophia-daemon-usb-0"
 SCREEN_NAME_DAEMON_USB_ONE="sophia-daemon-usb-1"
 SCREEN_NAME_ACC="sophia-process-acc"
+SCREEN_NAME_ROS1="sophia-ros1-bridge"
 ROOT_DIR=/etc/visir/
 ROOT_DIR_ROBOT_REF=$ROOT_DIR/python
 ROOT_DIR_ROBOT=$ROOT_DIR/python
@@ -16,6 +17,7 @@ BIN_ENABLE_AFT=enable_aft.sh
 BIN_DISABLE_FWD=disable_fwd.sh
 BIN_DISABLE_AFT=disable_aft.sh
 BIN_ROBOT_SONAR=visir_robot_sonar_run.sh
+BIN_ROS1=run_docker.sh
 
 DIR_PYTHON_SCRIPT=/etc/sophia/python/
 SCRIPT_PYTHON_RUN=run.sh
@@ -42,15 +44,17 @@ Start()
   case "$1" in
   # Robot Side
 	'robot' )
-          	Start daemon
-		Start acc
-                exit 0
+          	sophia start daemon
+          	sophia start acc
+                sleep 1
 	;;
 
 	'daemon' )
-          	Start daemon0
+          	sophia start daemon0
                 sleep 1
-          	Start daemon1
+          	sophia start daemon1
+                sleep 1
+          	sophia start ros1
                 sleep 1
 	;;
 
@@ -75,6 +79,12 @@ Start()
                 THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
 	;;
 
+	'ros1' )
+                THE_NAME=$SCREEN_NAME_ROS1
+                THE_BIN=$BIN_ROS1
+                THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
+	;;
+
 	'acc' )
 		setserial $SOPHIA_ACC_SERIAL low_latency
                 THE_NAME=$SCREEN_NAME_ACC
@@ -95,8 +105,10 @@ Start()
      then
        echo "screen error"
      else
-     cd $THE_ROOT_DIR
-     screen -S $THE_NAME -d -m ./$THE_BIN
+       TTT=${pwd}
+       cd $THE_ROOT_DIR
+       screen -S $THE_NAME -d -m ./$THE_BIN
+       cd $TTT
      fi
    fi
    sleep 1
@@ -109,12 +121,13 @@ Stop()
   case "$1" in
   # Robot Side
 	'robot' )
-                Stop daemon
-     		Stop acc
+                sophia stop daemon
+     		sophia stop acc
 	;;
 	'daemon' )
-                Stop daemon0
-		Stop daemon1
+                sophia stop daemon0
+                sophia stop daemon1
+                sophia stop ros1
 	;;
 	'daemonLegacy' )
                 THE_NAME=$SCREEN_NAME_DAEMON
@@ -124,6 +137,9 @@ Stop()
 	;;
 	'daemon1' )
                 THE_NAME=$SCREEN_NAME_DAEMON_USB_ONE
+	;;
+	'ros1' )
+                THE_NAME=$SCREEN_NAME_ROS1
 	;;
 	'acc' )
                 THE_NAME=$SCREEN_NAME_ACC
@@ -161,6 +177,9 @@ Status()
 	;;
 	'daemon1' )
                 THE_NAME=$SCREEN_NAME_DAEMON_ONE
+	;;
+	'ros1' )
+                THE_NAME=$SCREEN_NAME_ROS1
 	;;
 	'acc' )
                 THE_NAME=$SCREEN_NAME_ACC
@@ -208,6 +227,7 @@ ShowUsage()
         echo '          daemon  : Starts main daemon          ' 
         echo '          daemon0 : Starts main daemon on USB0  ' 
         echo '          daemon1 : Starts main daemon on USB1  ' 
+        echo '          ros1    : Starts ros1 bridge          ' 
         echo '          acc     : Starts accelemator process  ' 
         echo 'stop              : Stops the given system      '
         echo '          <arg 0>                               '
@@ -215,6 +235,7 @@ ShowUsage()
         echo '          daemon  : Stops main daemon           ' 
         echo '          daemon0 : Stops main daemon on USB0   ' 
         echo '          daemon1 : Stops main daemon on USB1   ' 
+        echo '          ros1    : Stops ros1 bridge           ' 
         echo '          acc     : Stops accelemator process   ' 
         echo 'run               : Runs a python script in the '
         echo '                    Sophia work space           '
