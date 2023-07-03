@@ -1,5 +1,6 @@
 class Sophia:
   ROS_CHAN_REF_POS='/ref/pos'
+  ROS_CHAN_CMD='/cmd'
   ROS_CHAN_STATE_POS='/state/pos'
   ROS_CHAN_STATE_TORQUE='/state/torque'
   ROS_CHAN_STATE_ACC='/state/acc'
@@ -37,7 +38,7 @@ class Sophia:
           ("lar", 0x39,        0x39,        0x39,   0x39,   ENABLE_LEFT ,   1.0,            -1.0,                  5,    0.0     ),
           ("lap", 0x3a,        0x3a,        0x3a,   0x3a,   ENABLE_LEFT ,   0.4,            -1.0,                  6,    0.0     ),
           ("ltp", 0x3b,        0x3b,        0x3b,   0x3b,   ENABLE_LEFT ,   1.0,            -1.0,                  7,    0.0     ),
-          ("rhy", 0x10,        0x11,        0x1c,   0x10,   ENABLE_RIGHT,   1.0,            -1.0,                  8,  -13.4     ),
+          ("rhy", 0x10,        0x11,        0x1c,   0x10,   ENABLE_RIGHT,   1.0,            -1.0,                  8,  -19.4     ),
           ("rhr", 0x12,        0x13,        0x1d,   0x12,   ENABLE_RIGHT,   0.2,            -0.2,                  9,    0.0     ),
           ("rhp", 0x14,        0x15,        0x1e,   0x14,   ENABLE_RIGHT,   0.7,            -1.3,                 10,    0.0     ),
           ("rkp", 0x16,        0x17,        0x1f,   0x16,   ENABLE_RIGHT,   1.2,             0.0,                 11,    0.0     ),

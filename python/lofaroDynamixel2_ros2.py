@@ -4,6 +4,7 @@ import time
 import rclpy
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64
+from std_msgs.msg import String
 import math
 
 import sophia_h as sh
@@ -126,7 +127,7 @@ def init(L=None):
   heart  = node.create_publisher(Float64, sophia.ROS_CHAN_HEART,1)
   tor  = node.create_publisher(JointState, '/state/torque',1)
   sub  = node.create_subscription(JointState,'/ref/pos', callback, 10)
-
+  cmd  = node.create_subscription(String,'/cmd', cb_cmd, 10)
   print('Init ......')
   for i in range(10):
     init_filter_ref()
@@ -150,6 +151,17 @@ def init_filter_ref():
           FILTER_REF_0[mot_index] = pos
           FILTER_REF_1[mot_index] = pos
 
+
+def cb_cmd(msg):
+  ms = msg.data.split()
+  lms = len(ms)
+  if lms > 2:
+    if ms[0] == 'torque':
+      if ms[1] == 'enable':
+        if ms[2] == 'all':
+          torqueEnable()
+        else:
+          d = ms[2]
 
 def torqueEnable():
   for p in IDs:

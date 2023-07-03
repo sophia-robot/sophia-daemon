@@ -3,8 +3,8 @@
 # Daniel M. Lofaro (dan@danlofaro.com)
 
 SCREEN_NAME_DAEMON="sophia-process-daemon"
-SCREEN_NAME_DAEMON_USB_ZERO="sophia-process-daemon-usb-zero"
-SCREEN_NAME_DAEMON_USB_ONE="sophia-process-daemon-usb-one"
+SCREEN_NAME_DAEMON_USB_ZERO="sophia-daemon-usb-0"
+SCREEN_NAME_DAEMON_USB_ONE="sophia-daemon-usb-1"
 SCREEN_NAME_ACC="sophia-process-acc"
 ROOT_DIR=/etc/visir/
 ROOT_DIR_ROBOT_REF=$ROOT_DIR/python
@@ -48,9 +48,9 @@ Start()
 	;;
 
 	'daemon' )
-          	Start daemonZero
+          	Start daemon0
                 sleep 1
-          	Start daemonOne
+          	Start daemon1
                 sleep 1
 	;;
 
@@ -61,14 +61,14 @@ Start()
                 THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
 	;;
 
-	'daemonZero' )
+	'daemon0' )
 		setserial $SOPHIA_SERIAL_ZERO low_latency
                 THE_NAME=$SCREEN_NAME_DAEMON_USB_ZERO
                 THE_BIN=$SCRIPT_SOPHIA_DAEMON_ROS_USB_ZERO
                 THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
 	;;
 
-	'daemonOne' )
+	'daemon1' )
 		setserial $SOPHIA_SERIAL_ONE low_latency
                 THE_NAME=$SCREEN_NAME_DAEMON_USB_ONE
                 THE_BIN=$SCRIPT_SOPHIA_DAEMON_ROS_USB_ONE
@@ -113,16 +113,16 @@ Stop()
      		Stop acc
 	;;
 	'daemon' )
-                Stop daemonZero
-		Stop daemonOne
+                Stop daemon0
+		Stop daemon1
 	;;
 	'daemonLegacy' )
                 THE_NAME=$SCREEN_NAME_DAEMON
 	;;
-	'daemonZero' )
+	'daemon0' )
                 THE_NAME=$SCREEN_NAME_DAEMON_USB_ZERO
 	;;
-	'daemonOne' )
+	'daemon1' )
                 THE_NAME=$SCREEN_NAME_DAEMON_USB_ONE
 	;;
 	'acc' )
@@ -150,16 +150,16 @@ Status()
 		Status acc
 	;;
 	'daemon' )
-                Status daemonZero
-		Status daemonOne
+                Status daemon0
+		Status daemon1
 	;;
 	'daemonLegacy' )
                 THE_NAME=$SCREEN_NAME_DAEMON
 	;;
-	'daemonZero' )
+	'daemon0' )
                 THE_NAME=$SCREEN_NAME_DAEMON_ZERO
 	;;
-	'daemonOne' )
+	'daemon1' )
                 THE_NAME=$SCREEN_NAME_DAEMON_ONE
 	;;
 	'acc' )
@@ -206,11 +206,15 @@ ShowUsage()
         echo '          <arg 0>                               '
         echo '          robot   : Starts all daemons below    '
         echo '          daemon  : Starts main daemon          ' 
+        echo '          daemon0 : Starts main daemon on USB0  ' 
+        echo '          daemon1 : Starts main daemon on USB1  ' 
         echo '          acc     : Starts accelemator process  ' 
         echo 'stop              : Stops the given system      '
         echo '          <arg 0>                               '
         echo '          robot   : Stops all daemons below     '
         echo '          daemon  : Stops main daemon           ' 
+        echo '          daemon0 : Stops main daemon on USB0   ' 
+        echo '          daemon1 : Stops main daemon on USB1   ' 
         echo '          acc     : Stops accelemator process   ' 
         echo 'run               : Runs a python script in the '
         echo '                    Sophia work space           '

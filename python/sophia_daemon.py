@@ -6,6 +6,7 @@ class SophiaDaemon:
   import rclpy
   from sensor_msgs.msg import JointState
   from std_msgs.msg import Float64
+  from std_msgs.msg import String
   import math
 
   import sophia_h as sh
@@ -51,6 +52,7 @@ class SophiaDaemon:
     self.heart  = self.node.create_publisher(self.Float64, self.sophia.ROS_CHAN_HEART,1)
     self.tor    = self.node.create_publisher(self.JointState, self.sophia.ROS_CHAN_STATE_TORQUE,1)
     self.sub    = self.node.create_subscription(self.JointState,self.sophia.ROS_CHAN_REF_POS, self.callback, 10)
+    self.cmd    = self.node.create_subscription(self.String,self.sophia.ROS_CHAN_CMD, self.cb_cmd, 10)
 
 
   def lowLatency(self, port=None):
@@ -156,6 +158,44 @@ class SophiaDaemon:
             self.FILTER_REF_0[mot_index] = pos
             self.FILTER_REF_1[mot_index] = pos
     return ret
+
+  def cb_cmd(self, msg):
+    ms  = msg.data.split()
+    msl = len(ms)
+    if msl > 2:
+      if ms[0] == 'torque':
+        if ms[1] == 'enable':
+          if ms[2] == 'all':
+            self.torqueEnable()
+          else:
+            self.torqueEnableOne(ms[2])
+
+    
+  def torqueEnableOne(self, jnt=None):
+    if jnt == None:
+      return self.FAIL
+         
+      for p in self.IDs:
+        try:
+          name      = p[self.sophia.ENUM_NAME]
+          if name == jnt:
+            the_id_0  = p[self.sophia.ENUM_TORQUE_EN_0]
+            the_id_1  = p[self.sophia.ENUM_TORQUE_EN_1]
+            enabled   = p[self.sophia.ENUM_ENABLED]
+            if enabled:
+              err = self.robot.torque(the_id_0, self.robot.ENABLE)
+              print("Torque Enable status for ", end='')
+              print(hex(the_id_0), end=' = ')
+              print(err)
+              if the_id_1 != the_id_0:
+                err = self.robot.torque(the_id_1, self.robot.ENABLE)
+                print("Torque Enable status for ", end='')
+                print(hex(the_id_1), end=' = ')
+                print(err)
+        except:
+          return self.FAIL
+
+    return self.OK
 
   def torqueEnable(self):
     for p in self.IDs:
