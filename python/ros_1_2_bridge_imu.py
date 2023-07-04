@@ -54,6 +54,7 @@ class HansonWalking:
   try:
     import rclpy
     from sensor_msgs.msg import JointState
+    from geometry_msgs.msg import Twist
   except:
     rclpy = None
     JointState = None
@@ -86,6 +87,10 @@ class HansonWalking:
       self.mode = mode
     elif mode == 'ros2-imu':
       print("ini ros1 imu")
+      self.ini_ros2_imu()
+      self.mode = mode
+    elif mode == 'ros2-imu-real':
+      print("ini ros1 imu real")
       self.ini_ros2_imu()
       self.mode = mode
 
@@ -328,6 +333,59 @@ class HansonWalking:
       print(dan_i)
       self.rclpy.spin_once(node) 
 
+  def ros2_imu_real(self):
+    from geometry_msgs.msg import Twist
+    print("real imu state")
+    self.rclpy.init(args=None)
+    node = self.rclpy.create_node('ROS2_IMU_Node_Real')
+    sub  = node.create_subscription(Twist, self.sophia.ROS_CHAN_STATE_ACC, self.cb_ros2_imu_real, 1)
+    dan_i = 0
+    while self.rclpy.ok():
+      dan_i += 1
+      print(dan_i)
+      self.rclpy.spin_once(node) 
+
+  import numpy as np
+
+  def deg2rad(self, val):
+    return self.np.pi * val / 180.0
+ 
+
+  L_imu_real = 20.0 
+  lx0 = 0.0
+  ly0 = 0.0
+  lz0 = 0.0
+  ax0 = 0.0
+  ay0 = 0.0
+  az0 = 0.0
+  k_imu_y = 1.3
+  def cb_ros2_imu_real(self, msg):
+    #dandan
+    lx = self.deg2rad(msg.linear.x)
+    ly = self.deg2rad(msg.linear.y - 9.0) * self.k_imu_y
+    lz = self.deg2rad(msg.linear.z)
+    ax = self.deg2rad(msg.angular.x)
+    ay = self.deg2rad(msg.angular.y)
+    az = self.deg2rad(msg.angular.z)
+
+    self.lx0 = (lx + self.lx0*(self.L_imu_real - 1.0)) / self.L_imu_real
+    self.ly0 = (ly + self.ly0*(self.L_imu_real - 1.0)) / self.L_imu_real
+    self.lz0 = (lz + self.lz0*(self.L_imu_real - 1.0)) / self.L_imu_real
+    self.ax0 = (ax + self.ax0*(self.L_imu_real - 1.0)) / self.L_imu_real
+    self.ay0 = (ay + self.ay0*(self.L_imu_real - 1.0)) / self.L_imu_real
+    self.az0 = (az + self.az0*(self.L_imu_real - 1.0)) / self.L_imu_real
+
+    self.imu.linear.x  = self.lx0
+    self.imu.linear.y  = self.ly0
+    self.imu.linear.z  = self.lz0
+    self.imu.angular.x = self.ax0
+    self.imu.angular.y = self.ay0
+    self.imu.angular.z = self.az0
+    print(self.imu.angular.y)
+    buff = bytes(self.imu)
+    self.sock.sendto(buff, (self.IP, self.PORT_IMU))
+    pass
+
   def cb_ros2_imu(self, msg):
     roll1  = msg.position[msg.name.index('rhr')]
     roll2  = msg.position[msg.name.index('lhr')]
@@ -372,6 +430,9 @@ class HansonWalking:
       self.ros1_imu()
     elif self.mode == 'ros2-imu':
       self.ros2_imu()
+    elif self.mode == 'ros2-imu-real':
+      print('running mode : ', self.mode)
+      self.ros2_imu_real()
 
 import sys
 
@@ -383,6 +444,7 @@ if __name__ == '__main__':
   if len(args) > 0:
     d0 = args[0]
   d0 = 'ros2-imu'
+#  d0 = 'ros2-imu-real'
 #  d0 = 'ros2'
 #  d0 = 'ros1-imu'
   if True:
@@ -402,6 +464,9 @@ if __name__ == '__main__':
       hw = HansonWalking(mode='ros1-imu')
     elif d0 == 'ros2-imu':
       hw = HansonWalking(mode='ros2-imu')
+    elif d0 == 'ros2-imu-real':
+      print('setting ',d0)
+      hw = HansonWalking(mode='ros2-imu-real')
     else:
       hw = HansonWalking()
   else:

@@ -140,14 +140,12 @@ class SophiaWalking:
         dp = e1 - s1
         pp = p - s1
         pp = 0.5 - pp / dp / 2.0
-        print(pp)
         y  = d_turn * self.np.sin(pp*self.np.pi)
     # phase 1
     elif (p > s0) & (p <=e0):
         dp = e0 - s0
         pp = p - s0
         pp = pp / dp / 2.0
-        print(pp)
         y = d_turn * self.np.sin(pp*self.np.pi)
     
     if d_turn <0.0:
@@ -178,7 +176,10 @@ class SophiaWalking:
   LEG_LEFT  = 1
   LEG_RIGHT = 2
   DO_EXIT = 0
-  def walk(self, hip_pitch_offset=10.0, T_walking=0.003, d_turn=0.0, step_l=0.0, num_steps=1, amp_knee=30.0):
+  k_ankle_pitch_extra = -0.0
+  k_hip_pitch_extra = -0.1
+  #dandan
+  def walk(self, hip_pitch_offset=0.0, T_walking=0.003, d_turn=0.0, step_l=0.0, num_steps=1, amp_knee=30.0):
     d_turn = -d_turn
     #hp, kp, ap, hr, ar = self.getLegCycle(self.p_walking, amp_pitch = 10.0)
     hp, kp, ap, hr, ar = self.getLegCycle(self.p_walking, amp_pitch=amp_knee)
@@ -191,7 +192,7 @@ class SophiaWalking:
     apr = self.deg2rad(ap)
     hrr = self.deg2rad(hr) * k_roll
     arr = self.deg2rad(ar) * k_roll
-
+    print(hrr)
     hpoff = self.deg2rad(hip_pitch_offset)
 
     ctrl = self.JointState()
@@ -219,13 +220,18 @@ class SophiaWalking:
     step_d = -step_l * self.np.sin(self.p_walking * 2.0 * self.np.pi)
     step_r = self.deg2rad(step_d)
 
+    
+    ap_extra = abs(hpr) * self.k_ankle_pitch_extra
+    hp_extra = abs(hpr) * self.k_hip_pitch_extra
+
+
     if the_leg_down == self.LEG_LEFT:
       ctrl.name.append("rhp")
-      ctrl.position.append(hpr + hpoff + step_r)
+      ctrl.position.append(hpr + hpoff + step_r + hp_extra)
       ctrl.name.append("rkp")
       ctrl.position.append(kpr - 2.0 * step_r)
       ctrl.name.append("rap")
-      ctrl.position.append(apr + step_r)
+      ctrl.position.append(apr + step_r + ap_extra)
       ctrl.name.append("rar")
       ctrl.position.append(arr)
       ctrl.name.append("rhr")
@@ -241,7 +247,7 @@ class SophiaWalking:
       ctrl.name.append("lkp")
       ctrl.position.append(0.0)
       ctrl.name.append("lap")
-      ctrl.position.append(0.0)
+      ctrl.position.append(0.0 + ap_extra)
       ctrl.name.append("lar")
       ctrl.position.append(arr)
       ctrl.name.append("lhr")
@@ -254,11 +260,11 @@ class SophiaWalking:
 
     else:
       ctrl.name.append("lhp")
-      ctrl.position.append(hpr + hpoff + step_r)
+      ctrl.position.append(hpr + hpoff + step_r + hp_extra)
       ctrl.name.append("lkp")
       ctrl.position.append(kpr - 2.0 * step_r)
       ctrl.name.append("lap")
-      ctrl.position.append(apr + step_r)
+      ctrl.position.append(apr + step_r + ap_extra)
       ctrl.name.append("lar")
       ctrl.position.append(arr)
       ctrl.name.append("lhr")
@@ -274,7 +280,7 @@ class SophiaWalking:
       ctrl.name.append("rkp")
       ctrl.position.append(0.0)
       ctrl.name.append("rap")
-      ctrl.position.append(0.0)
+      ctrl.position.append(0.0 + ap_extra)
       ctrl.name.append("rar")
       ctrl.position.append(arr)
       ctrl.name.append("rhr")
@@ -291,6 +297,7 @@ class SophiaWalking:
 
     #print(kpr)
     self.pub.publish(ctrl)
+    print("T_walking = ", T_walking, "time = ", self.p_turn)
     self.p_walking += T_walking
     self.p_turn    += T_walking / 2.0
     if self.p_walking > 1.0:

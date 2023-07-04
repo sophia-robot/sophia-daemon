@@ -89,11 +89,25 @@ class SophiaWalkingCtrl:
     if lmsg == 1:
       if msg.name[0] == 'turn':
         val = msg.position[0]
-        self.turn(val=val)
+        speed = msg.velocity[0]
+        print('speed from ros = ', speed)
+        if speed <= 0.0:
+          speed = 0.002
+        if speed > 0.01:
+          speed = 0.01
+        print('speed from ros = ', speed)
+        self.turn(val=val, speed=speed)
       elif msg.name[0] == 'step':
         val = msg.position[0]
-        val_i = 1# int(val)
-        self.walk(num_steps=val_i)
+        val_i = int(val)
+        speed = msg.velocity[0]
+        print('speed from ros = ', speed)
+        if speed <= 0.0:
+          speed = 0.002
+        if speed > 0.01:
+          speed = 0.01
+        print('speed from ros = ', speed)
+        self.walk(num_steps=val_i, speed=speed)
       elif msg.name[0] == 'blender':
         if msg.position[0] > 0:
           self.DO_BLENDER = True

@@ -29,7 +29,7 @@ class TestWalking:
 tw = TestWalking()
 tw.time.sleep(5.0)
 for i in range(3):
-  tw.turn(-10.0)
+  tw.turn(10.0)
   tw.time.sleep(0.1)
 
 tw.time.sleep(10.0)
