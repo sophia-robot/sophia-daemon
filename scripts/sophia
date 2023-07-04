@@ -3,6 +3,7 @@
 # Daniel M. Lofaro (dan@danlofaro.com)
 
 SCREEN_NAME_DAEMON="sophia-process-daemon"
+SCREEN_NAME_FIDGET="sophia-process-fidget"
 SCREEN_NAME_WALKING_CTRL="sophia-process-walking"
 SCREEN_NAME_DAEMON_USB_ZERO="sophia-daemon-usb-0"
 SCREEN_NAME_DAEMON_USB_ONE="sophia-daemon-usb-1"
@@ -26,6 +27,7 @@ BIN_ROS2_IMU=ros2_imu.sh
 BIN_ROS2_WALKING=ros2_walking.sh
 BIN_ROS2_WALKING_REF_BRIDGE=ros2_walking_ref_bridge.sh
 BIN_WALKING_CTRL=sophia_walking.sh
+BIN_FIDGET=sophia_fidget.sh
 
 DIR_PYTHON_SCRIPT=/etc/sophia/python/
 SCRIPT_PYTHON_RUN=run.sh
@@ -111,6 +113,11 @@ Start()
                 THE_BIN=$BIN_WALKING_CTRL
                 THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
 	;;
+	'fidget' )
+                THE_NAME=$SCREEN_NAME_FIDGET
+                THE_BIN=$BIN_FIDGET
+                THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
+	;;
 	'ros2-walking-ref' )
                 THE_NAME=$SCREEN_NAME_ROS2_WALKING_REF_BRIDGE
                 THE_BIN=$BIN_ROS2_WALKING_REF_BRIDGE
@@ -177,6 +184,9 @@ Stop()
 	'ros1' )
                 THE_NAME=$SCREEN_NAME_ROS1
 	;;
+	'fidget' )
+                THE_NAME=$SCREEN_NAME_FIDGET
+	;;
 	'ros2-imu' )
                 THE_NAME=$SCREEN_NAME_ROS2_IMU
 	;;
@@ -241,6 +251,9 @@ Status()
 	'walking' )
                 THE_NAME=$SCREEN_NAME_WALKING_CTRL
 	;;
+	'fidget' )
+                THE_NAME=$SCREEN_NAME_FIDGET
+	;;
 	'ros2-walking-ref' )
                 THE_NAME=$SCREEN_NAME_ROS2_WALKING_REF_BRIDGE
 	;;
@@ -295,7 +308,8 @@ ShowUsage()
         echo '          ros2-imu         : Starts ros2 imu bridge         ' 
         echo '          ros2-walking     : Starts ros2 walking bridge     ' 
         echo '          ros2-walking-ref : Starts ros2 walking ref bridge     ' 
-        echo '          acc     : Starts accelemator process  ' 
+        echo '          acc     : Starts accelemator process  '
+        echo '          fidget  : Starts fidget               ' 
         echo 'stop              : Stops the given system      '
         echo '          <arg 0>                               '
         echo '          robot   : Stops all daemons below     '
@@ -308,6 +322,7 @@ ShowUsage()
         echo '          ros2-walking     : Stops ros2 walking bridge     ' 
         echo '          ros2-walking-ref : Stops ros2 walking ref bridge     ' 
         echo '          acc     : Stops accelemator process   ' 
+        echo '          fidget  : Stops fidget                ' 
         echo 'run               : Runs a python script in the '
         echo '                    Sophia work space           '
         echo '          <arg 0>                               '

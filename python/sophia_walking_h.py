@@ -192,7 +192,6 @@ class SophiaWalking:
     apr = self.deg2rad(ap)
     hrr = self.deg2rad(hr) * k_roll
     arr = self.deg2rad(ar) * k_roll
-    print(hrr)
     hpoff = self.deg2rad(hip_pitch_offset)
 
     ctrl = self.JointState()
@@ -297,7 +296,6 @@ class SophiaWalking:
 
     #print(kpr)
     self.pub.publish(ctrl)
-    print("T_walking = ", T_walking, "time = ", self.p_turn)
     self.p_walking += T_walking
     self.p_turn    += T_walking / 2.0
     if self.p_walking > 1.0:
