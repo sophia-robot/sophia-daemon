@@ -42,7 +42,7 @@ class SophiaWalkingCtrl:
       val = -self.TURN_MAX
 
     while True:
-      ret = self.sw.walk(T_walking=speed, d_turn=val, step_l = 0.0)
+      ret = self.sw.walk( T_walking=speed, d_turn=val, step_l = 0.0)
       if ret == self.sw.DONE:
         do_ret = self.OK
         break
@@ -50,8 +50,8 @@ class SophiaWalkingCtrl:
 
   def walk(self, speed=0.002, num_steps=1):
     do_ret = self.FAIL
-    if num_step > self.MAX_STEP_NUM:
-      num_step = self.MAX_STEP_NUM
+    if num_steps > self.MAX_STEP_NUM:
+      num_steps = self.MAX_STEP_NUM
     while True:
       ret = self.sw.walk(T_walking=speed, d_turn=0.0, step_l = 0.0, num_steps=num_steps)
       if ret == self.sw.DONE:
@@ -66,8 +66,8 @@ class SophiaWalkingCtrl:
       pass
     self.node        = self.rclpy.create_node("Sophia_Walking_Ctrl")
     self.pub_ref     = self.node.create_publisher(self.JointState, self.sophia.ROS_CHAN_REF_POS, 1)
-    self.sub_walking = self.node.create_subscription(self.JointState, self.sophia.ROS_CHAN_WALKING, self.cb_blender, 1)
-    self.sub_state   = self.node.create_subscription(self.JointState, self.sophia.ROS_CHAN_STATE_POS, self.cb_state, 1)
+    self.sub_walking = self.node.create_subscription(self.JointState, self.sophia.ROS_CHAN_WALKING, self.cb_blender, 10)
+    self.sub_state   = self.node.create_subscription(self.JointState, self.sophia.ROS_CHAN_STATE_POS, self.cb_state, 10)
 
   def state_init(self):
     for p in self.sophia.IDs:
@@ -92,7 +92,7 @@ class SophiaWalkingCtrl:
         self.turn(val=val)
       elif msg.name[0] == 'step':
         val = msg.position[0]
-        val_i = int(val)
+        val_i = 1# int(val)
         self.walk(num_steps=val_i)
       elif msg.name[0] == 'blender':
         if msg.position[0] > 0:
@@ -147,7 +147,7 @@ while True:
   swc.update()
 
   # goto zero
-  swc.zero()
+#  swc.zero()
 
   
 

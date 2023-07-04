@@ -22,7 +22,10 @@ class WALKIN_ROS2_TO_ROS2(Structure):
               ('ray', c_double),
               ('rar', c_double),
               ('rap', c_double),
-              ('rtp', c_double)]
+              ('rtp', c_double),
+              ('turn', c_double),
+              ('step', c_double),
+              ('blender', c_double)]
 
 
 class HansonWalking:
@@ -117,6 +120,12 @@ class HansonWalking:
         self.walking.rap = val 
       elif name == 'RightToePitch':
         self.walking.rtp = val 
+      elif name == 'blender':
+        self.walking.blender = val
+      elif name == 'turn':
+        self.walking.turn = val
+      elif name == 'step':
+        self.walking.step = val
    
     buff = bytes(self.walking)
     self.sock.sendto(buff, (self.IP, self.PORT))
@@ -173,6 +182,12 @@ class HansonWalking:
         msg.position.append(self.walking.rap)
         msg.name.append('rtp')
         msg.position.append(self.walking.rtp)
+        msg.name.append('step')
+        msg.position.append(self.walking.step)
+        msg.name.append('turn')
+        msg.position.append(self.walking.turn)
+        msg.name.append('blender')
+        msg.position.append(self.walking.blender)
         pub.publish(msg)
 
   def ros1(self):

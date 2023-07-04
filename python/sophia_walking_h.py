@@ -36,9 +36,9 @@ class SophiaWalking:
     self.sophia = self.sh.Sophia()
     self.rclpy.init()
     self.node = self.rclpy.create_node('sophia_example_control_node')
-    self.pub  = self.node.create_publisher(self.JointState, self.sophia.ROS_CHAN_REF_POS,1)
-    self.sub  = self.node.create_subscription(self.Twist, self.sophia.ROS_CHAN_STATE_ACC,  self.cb_acc, 1)
-    self.tor  = self.node.create_subscription(self.JointState, self.sophia.ROS_CHAN_STATE_TORQUE,  self.cb_tor, 1)
+    self.pub  = self.node.create_publisher(self.JointState, self.sophia.ROS_CHAN_REF_POS,10)
+    self.sub  = self.node.create_subscription(self.Twist, self.sophia.ROS_CHAN_STATE_ACC,  self.cb_acc, 10)
+    self.tor  = self.node.create_subscription(self.JointState, self.sophia.ROS_CHAN_STATE_TORQUE,  self.cb_tor, 10)
     return 
 
   def sleep(self, TT=None):
@@ -178,7 +178,7 @@ class SophiaWalking:
   LEG_LEFT  = 1
   LEG_RIGHT = 2
   DO_EXIT = 0
-  def walk(self, hip_pitch_offset=5.0, T_walking=0.003, d_turn=0.0, step_l=0.0, num_steps=1, amp_knee=30.0):
+  def walk(self, hip_pitch_offset=10.0, T_walking=0.003, d_turn=0.0, step_l=0.0, num_steps=1, amp_knee=30.0):
     d_turn = -d_turn
     #hp, kp, ap, hr, ar = self.getLegCycle(self.p_walking, amp_pitch = 10.0)
     hp, kp, ap, hr, ar = self.getLegCycle(self.p_walking, amp_pitch=amp_knee)

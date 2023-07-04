@@ -27,12 +27,8 @@ class TestWalking:
     self.rclpy.spin(self.node)
 
 tw = TestWalking()
-tw.time.sleep(5.0)
-for i in range(3):
-  tw.turn()
-  tw.time.sleep(0.1)
 
-tw.time.sleep(10.0)
 for i in range(3):
   tw.step()
-  tw.time.sleep(0.1)
+
+tw.time.sleep(1.0)
