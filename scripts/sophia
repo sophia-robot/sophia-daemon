@@ -3,6 +3,7 @@
 # Daniel M. Lofaro (dan@danlofaro.com)
 
 SCREEN_NAME_DAEMON="sophia-process-daemon"
+SCREEN_NAME_WALKING_CTRL="sophia-process-walking"
 SCREEN_NAME_DAEMON_USB_ZERO="sophia-daemon-usb-0"
 SCREEN_NAME_DAEMON_USB_ONE="sophia-daemon-usb-1"
 SCREEN_NAME_ACC="sophia-process-acc"
@@ -24,6 +25,7 @@ BIN_ROS1=run_docker.sh
 BIN_ROS2_IMU=ros2_imu.sh
 BIN_ROS2_WALKING=ros2_walking.sh
 BIN_ROS2_WALKING_REF_BRIDGE=ros2_walking_ref_bridge.sh
+BIN_WALKING_CTRL=sophia_walking.sh
 
 DIR_PYTHON_SCRIPT=/etc/sophia/python/
 SCRIPT_PYTHON_RUN=run.sh
@@ -55,6 +57,7 @@ Start()
           	sophia start ros1
 		sophia start ros2-imu
 		sophia start ros2-walking
+		sophia start walking
 #		sophia start ros2-walking-ref
 
                 sleep 1
@@ -101,6 +104,11 @@ Start()
 	'ros2-walking' )
                 THE_NAME=$SCREEN_NAME_ROS2_WALKING
                 THE_BIN=$BIN_ROS2_WALKING
+                THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
+	;;
+	'walking' )
+                THE_NAME=$SCREEN_NAME_WALKING_CTRL
+                THE_BIN=$BIN_WALKING_CTRL
                 THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
 	;;
 	'ros2-walking-ref' )
@@ -150,6 +158,7 @@ Stop()
      		sophia stop acc
                 sophia stop ros2-imu
                 sophia stop ros2-walking
+                sophia stop walking
 		sophia stop ros2-walking-ref
 	;;
 	'daemon' )
@@ -173,6 +182,9 @@ Stop()
 	;;
 	'ros2-walking' )
                 THE_NAME=$SCREEN_NAME_ROS2_WALKING
+	;;
+	'walking' )
+                THE_NAME=$SCREEN_NAME_WALKING_CTRL
 	;;
 	'ros2-walking-ref' )
                 THE_NAME=$SCREEN_NAME_ROS2_WALKING_REF_BRIDGE
@@ -226,6 +238,9 @@ Status()
 	'ros2-walking' )
                 THE_NAME=$SCREEN_NAME_ROS2_WALKING
 	;;
+	'walking' )
+                THE_NAME=$SCREEN_NAME_WALKING_CTRL
+	;;
 	'ros2-walking-ref' )
                 THE_NAME=$SCREEN_NAME_ROS2_WALKING_REF_BRIDGE
 	;;
@@ -275,6 +290,7 @@ ShowUsage()
         echo '          daemon  : Starts main daemon          ' 
         echo '          daemon0 : Starts main daemon on USB0  ' 
         echo '          daemon1 : Starts main daemon on USB1  ' 
+	echo '          walking : Starts walking ctrl         '
         echo '          ros1    : Starts ros1 bridge          ' 
         echo '          ros2-imu         : Starts ros2 imu bridge         ' 
         echo '          ros2-walking     : Starts ros2 walking bridge     ' 
@@ -286,6 +302,7 @@ ShowUsage()
         echo '          daemon  : Stops main daemon           ' 
         echo '          daemon0 : Stops main daemon on USB0   ' 
         echo '          daemon1 : Stops main daemon on USB1   ' 
+	echo '          walking : Stops walking ctrl          '
         echo '          ros1    : Stops ros1 bridge           ' 
         echo '          ros2-imu         : Stops ros2 imu bridge         ' 
         echo '          ros2-walking     : Stops ros2 walking bridge     ' 
