@@ -9,6 +9,7 @@ SCREEN_NAME_ACC="sophia-process-acc"
 SCREEN_NAME_ROS1="sophia-ros1-bridge"
 SCREEN_NAME_ROS2_IMU="sophia-ros2-bridge-imu"
 SCREEN_NAME_ROS2_WALKING="sophia-ros2-bridge-walking"
+SCREEN_NAME_ROS2_WALKING_REF_BRIDGE="sophia-ros2-bridge-walking-ref"
 ROOT_DIR=/etc/visir/
 ROOT_DIR_ROBOT_REF=$ROOT_DIR/python
 ROOT_DIR_ROBOT=$ROOT_DIR/python
@@ -22,6 +23,7 @@ BIN_ROBOT_SONAR=visir_robot_sonar_run.sh
 BIN_ROS1=run_docker.sh
 BIN_ROS2_IMU=ros2_imu.sh
 BIN_ROS2_WALKING=ros2_walking.sh
+BIN_ROS2_WALKING_REF_BRIDGE=ros2_walking_ref_bridge.sh
 
 DIR_PYTHON_SCRIPT=/etc/sophia/python/
 SCRIPT_PYTHON_RUN=run.sh
@@ -99,6 +101,11 @@ Start()
                 THE_BIN=$BIN_ROS2_WALKING
                 THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
 	;;
+	'ros2-walking-ref' )
+                THE_NAME=$SCREEN_NAME_ROS2_WALKING_REF_BRIDGE
+                THE_BIN=$BIN_ROS2_WALKING_REF_BRIDGE
+                THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
+	;;
 
 	'acc' )
 		setserial $SOPHIA_ACC_SERIAL low_latency
@@ -164,6 +171,9 @@ Stop()
 	'ros2-walking' )
                 THE_NAME=$SCREEN_NAME_ROS2_WALKING
 	;;
+	'ros2-walking-ref' )
+                THE_NAME=$SCREEN_NAME_ROS2_WALKING_REF_BRIDGE
+	;;
 	'acc' )
                 THE_NAME=$SCREEN_NAME_ACC
 	;;
@@ -213,6 +223,9 @@ Status()
 	'ros2-walking' )
                 THE_NAME=$SCREEN_NAME_ROS2_WALKING
 	;;
+	'ros2-walking-ref' )
+                THE_NAME=$SCREEN_NAME_ROS2_WALKING_REF_BRIDGE
+	;;
 	'acc' )
                 THE_NAME=$SCREEN_NAME_ACC
 	;;
@@ -260,8 +273,9 @@ ShowUsage()
         echo '          daemon0 : Starts main daemon on USB0  ' 
         echo '          daemon1 : Starts main daemon on USB1  ' 
         echo '          ros1    : Starts ros1 bridge          ' 
-        echo '          ros2-imu     : Starts ros2 imu bridge         ' 
-        echo '          ros2-walking : Starts ros2 walking bridge     ' 
+        echo '          ros2-imu         : Starts ros2 imu bridge         ' 
+        echo '          ros2-walking     : Starts ros2 walking bridge     ' 
+        echo '          ros2-walking-ref : Starts ros2 walking ref bridge     ' 
         echo '          acc     : Starts accelemator process  ' 
         echo 'stop              : Stops the given system      '
         echo '          <arg 0>                               '
@@ -270,8 +284,9 @@ ShowUsage()
         echo '          daemon0 : Stops main daemon on USB0   ' 
         echo '          daemon1 : Stops main daemon on USB1   ' 
         echo '          ros1    : Stops ros1 bridge           ' 
-        echo '          ros2-imu     : Stops ros2 imu bridge         ' 
-        echo '          ros2-walking : Stops ros2 walking bridge     ' 
+        echo '          ros2-imu         : Stops ros2 imu bridge         ' 
+        echo '          ros2-walking     : Stops ros2 walking bridge     ' 
+        echo '          ros2-walking-ref : Stops ros2 walking ref bridge     ' 
         echo '          acc     : Stops accelemator process   ' 
         echo 'run               : Runs a python script in the '
         echo '                    Sophia work space           '
