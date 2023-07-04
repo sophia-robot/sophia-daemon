@@ -55,6 +55,8 @@ Start()
           	sophia start ros1
 		sophia start ros2-imu
 		sophia start ros2-walking
+		sophia start ros2-walking-ref
+
                 sleep 1
 	;;
 
@@ -148,6 +150,7 @@ Stop()
      		sophia stop acc
                 sophia stop ros2-imu
                 sophia stop ros2-walking
+		sophia stop ros2-walking-ref
 	;;
 	'daemon' )
                 sophia stop daemon0

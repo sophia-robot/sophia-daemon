@@ -196,6 +196,12 @@ class LofaroDynamixel2:
     dxl_present_torque, dxl_comm_result, dxl_error = self.packetHandler.read2ByteTxRx(self.portHandler, the_id, self.ADDR_PRESENT_TORQUE)
     return (dxl_present_torque, self.getDxlError(dxl_comm_result, dxl_error))
 
+  def reboot(self, the_id):
+    DXL_ID = the_id
+    self.packetHandler.reboot(self.portHandler, DXL_ID)
+    self.packetHadler.reboot(self.portHandler, self.PROTOCOL_VERSION, DXL_ID)
+    dxl_comm_result, dxl_er0r = self.packetHandler.getLastTxRxResult(self.portHandler, self.PROTOCOL_VERSION)
+    return DXL_ID, self.getDxlError(dxl_comm_result, dxl_error)
 
   def getPosEnc(self, the_id):
     # Read present position

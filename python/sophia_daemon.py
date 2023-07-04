@@ -168,9 +168,36 @@ class SophiaDaemon:
           if ms[2] == 'all':
             self.torqueEnable()
           else:
+            self.reboot(ms[2])
             self.torqueEnableOne(ms[2])
 
-    
+   
+  def reboot(self, jnt=None):
+    if jnt == None:
+      return self.FAIL
+         
+      for p in self.IDs:
+        try:
+          name      = p[self.sophia.ENUM_NAME]
+          if name == jnt:
+            the_id_0  = p[self.sophia.ENUM_TORQUE_EN_0]
+            the_id_1  = p[self.sophia.ENUM_TORQUE_EN_1]
+            enabled   = p[self.sophia.ENUM_ENABLED]
+            if enabled:
+              err = self.robot.reboot(the_id_0)
+              print("Rebooting status for ", end='')
+              print(hex(the_id_0), end=' = ')
+              print(err)
+              if the_id_1 != the_id_0:
+                err = self.robot.reboot(the_id_1)
+                print("Rebooting status for ", end='')
+                print(hex(the_id_1), end=' = ')
+                print(err)
+        except:
+          return self.FAIL
+
+    return self.OK
+     
   def torqueEnableOne(self, jnt=None):
     if jnt == None:
       return self.FAIL
