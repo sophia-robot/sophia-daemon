@@ -55,7 +55,7 @@ Start()
           	sophia start ros1
 		sophia start ros2-imu
 		sophia start ros2-walking
-		sophia start ros2-walking-ref
+#		sophia start ros2-walking-ref
 
                 sleep 1
 	;;

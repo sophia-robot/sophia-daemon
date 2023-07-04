@@ -2,7 +2,7 @@
 
 
 
-class SophiaControlExample:
+class SophiaWalking:
   import rclpy
   from geometry_msgs.msg import Twist
   from sensor_msgs.msg import JointState
@@ -23,7 +23,7 @@ class SophiaControlExample:
   FAIL = True
   RUNNING = 2
   DONE    = 3
-  def SophiaControlExample(self):
+  def SophiaWalking(self):
     return 
 
   def __init__(self):
@@ -467,7 +467,7 @@ class SophiaControlExample:
     #sce.sleep()
      
 
-sce = SophiaControlExample()
+sce = SophiaWalking()
 while True:
   ret = sce.walk(T_walking=0.002, d_turn=10.0, step_l = 0.0)
   if ret == sce.DONE:
