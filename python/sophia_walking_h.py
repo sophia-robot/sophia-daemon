@@ -183,11 +183,14 @@ class SophiaWalking:
     #hp, kp, ap, hr, ar = self.getLegCycle(self.p_walking, amp_pitch = 10.0)
     hp, kp, ap, hr, ar = self.getLegCycle(self.p_walking, amp_pitch=amp_knee)
 
+
+    k_roll = 0.5
+
     hpr = self.deg2rad(hp)
     kpr = self.deg2rad(kp)
     apr = self.deg2rad(ap)
-    hrr = self.deg2rad(hr)
-    arr = self.deg2rad(ar)
+    hrr = self.deg2rad(hr) * k_roll
+    arr = self.deg2rad(ar) * k_roll
 
     hpoff = self.deg2rad(hip_pitch_offset)
 
