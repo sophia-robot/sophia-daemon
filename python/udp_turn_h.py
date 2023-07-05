@@ -1,4 +1,5 @@
 class SophiaTurnUDP:
+  import sys
   import time
   try: 
     import sophia_walking_h as swh
@@ -32,9 +33,19 @@ class SophiaTurnUDP:
 
   def __init__(self):
     self.UDP_PORT = 8008 
+    self.init_udp()
 
   def SophiaTurnUDP(self):
-    pass
+    if mode == 'ros2':
+      print('init ros2')
+      swd.init_ros2()
+      print('done init ros2')
+      print('starting ros2 udp loop')
+      swd.ros2()
+      print('ending ros2 udp loop')
+    if mode == 'udp':
+      swd.init_udp()
+
 
   def init_udp(self):
     self.UDP_IP = "10.0.0.204"
@@ -117,21 +128,4 @@ class SophiaTurnUDP:
     return
 
 
-import sys
-import time
-if __name__ == '__main__':
-  swd = SophiaTurnUDP()
-  mode = 'ros2'
-  if mode == 'ros2':
-    print('init ros2')
-    swd.init_ros2()
-    print('done init ros2')
-    print('starting ros2 udp loop')
-    swd.ros2()
-    print('ending ros2 udp loop')
-  if mode == 'udp':
-    swd.init_udp()
-    swd.send()
-
-  swd.exit()
 

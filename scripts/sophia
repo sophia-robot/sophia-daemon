@@ -3,6 +3,7 @@
 # Daniel M. Lofaro (dan@danlofaro.com)
 
 SCREEN_NAME_DAEMON="sophia-process-daemon"
+SCREEN_NAME_UDP_TURN="sophia-process-udp-turn"
 SCREEN_NAME_FIDGET="sophia-process-fidget"
 SCREEN_NAME_WALKING_CTRL="sophia-process-walking"
 SCREEN_NAME_DAEMON_USB_ZERO="sophia-daemon-usb-0"
@@ -28,6 +29,7 @@ BIN_ROS2_WALKING=ros2_walking.sh
 BIN_ROS2_WALKING_REF_BRIDGE=ros2_walking_ref_bridge.sh
 BIN_WALKING_CTRL=sophia_walking.sh
 BIN_FIDGET=sophia_fidget.sh
+BIN_UDP_TURN=start_turn_ctrl.sh
 
 DIR_PYTHON_SCRIPT=/etc/sophia/python/
 SCRIPT_PYTHON_RUN=run.sh
@@ -60,6 +62,7 @@ Start()
 		sophia start ros2-imu
 		sophia start ros2-walking
 		sophia start walking
+                sophia start udp-turn
 #		sophia start ros2-walking-ref
 
                 sleep 1
@@ -118,6 +121,11 @@ Start()
                 THE_BIN=$BIN_FIDGET
                 THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
 	;;
+	'udp-turn' )
+                THE_NAME=$SCREEN_NAME_UDP_TURN
+                THE_BIN=$BIN_UDP_TURN
+                THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
+	;;
 	'ros2-walking-ref' )
                 THE_NAME=$SCREEN_NAME_ROS2_WALKING_REF_BRIDGE
                 THE_BIN=$BIN_ROS2_WALKING_REF_BRIDGE
@@ -167,6 +175,7 @@ Stop()
                 sophia stop ros2-walking
                 sophia stop walking
 		sophia stop ros2-walking-ref
+		sophia stop udp-turn
 	;;
 	'daemon' )
                 sophia stop daemon0
@@ -189,6 +198,9 @@ Stop()
 	;;
 	'ros2-imu' )
                 THE_NAME=$SCREEN_NAME_ROS2_IMU
+	;;
+	'udp-turn' )
+                THE_NAME=$SCREEN_NAME_UDP_TURN
 	;;
 	'ros2-walking' )
                 THE_NAME=$SCREEN_NAME_ROS2_WALKING
@@ -238,6 +250,9 @@ Status()
 	;;
 	'daemon1' )
                 THE_NAME=$SCREEN_NAME_DAEMON_ONE
+	;;
+	'udp-turn' )
+                THE_NAME=$SCREEN_NAME_UDP_TURN
 	;;
 	'ros1' )
                 THE_NAME=$SCREEN_NAME_ROS1
@@ -310,6 +325,7 @@ ShowUsage()
         echo '          ros2-walking-ref : Starts ros2 walking ref bridge     ' 
         echo '          acc     : Starts accelemator process  '
         echo '          fidget  : Starts fidget               ' 
+        echo '          udp-turn: Starts UDP Turn             '
         echo 'stop              : Stops the given system      '
         echo '          <arg 0>                               '
         echo '          robot   : Stops all daemons below     '
@@ -323,6 +339,7 @@ ShowUsage()
         echo '          ros2-walking-ref : Stops ros2 walking ref bridge     ' 
         echo '          acc     : Stops accelemator process   ' 
         echo '          fidget  : Stops fidget                ' 
+        echo '          udp-turn: Stops UDP Turn              '
         echo 'run               : Runs a python script in the '
         echo '                    Sophia work space           '
         echo '          <arg 0>                               '
