@@ -7,6 +7,7 @@ class Sophia:
   ROS_CHAN_STATE_GYRO='/state/gyro'
   ROS_CHAN_HEART='/heart/beat'
   ROS_CHAN_WALKING='/ref/walking'
+  ROS_CHAN_TURN_CTRL='/cmd/turn'
   init_name = "none"
   sophia_name = "none"
 
