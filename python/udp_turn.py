@@ -104,7 +104,7 @@ class SophiaTurnUDP:
           d1 = self.decode(ds[1])
           if d0 == 'turn':
             val = float(d1)
-            for i in range(5):
+            for i in range(2):
               self.turn(val)
               self.time.sleep(0.001)
 #      except:
