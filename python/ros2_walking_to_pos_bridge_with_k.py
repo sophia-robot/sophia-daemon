@@ -29,7 +29,10 @@ class HansonWalkingBridge:
   def ros2(self):
     self.rclpy.init()
     node = self.rclpy.create_node('walking_ros2_k')
-    self.sub = node.create_subscription(self.JointState, self.sophia.ROS_CHAN_WALKING, self.cb_walking, 10)
+    self.sub           = node.create_subscription(self.JointState, self.sophia.ROS_CHAN_WALKING, self.cb_walking, 10)
+
+    self.walking_k = 1.0
+    self.sub_walking_k = node.create_subscription(self.Float64, self.sophia.ROS_CHAN_WALKING_K, self.cb_walking_k, 10)
 
     self.pub  = node.create_publisher(self.JointState, self.sophia.ROS_CHAN_REF_POS,1)
     print("ROS2 Node Running")
@@ -38,10 +41,14 @@ class HansonWalkingBridge:
 
   def cb_walking(self, msg):
     try:
+      for i in range(len(msg.position)):
+        msg.position[i] = msg.position[i] * self.walking_k
       self.pub.publish(msg)
     except:
       print("err")
 
+  def cb_walking_k(self, msg):
+    self.walking_k = msg.data
 
 
 import sys

@@ -48,6 +48,17 @@ class SophiaRos:
   def cb_joint_state_torque(self, msg):
     pass
 
+
+  def getWalkingK(self):
+    return self.walking_k
+
+  def setWalkingK(self):
+    msg = self.Float64()
+    self.pub_walking_k.publish(msg)
+
+  def cb_walking_k(self, msg):
+    self.walking_k = msg.data
+
   def sendRefPos(self, ref_val):
     self.pub_joint_ref_pos.publish(ref_val)
 
@@ -57,4 +68,6 @@ class SophiaRos:
     self.sub_joint_ref_pos      = node.create_subscription(self.JointState, self.sophia.ROS_CHAN_REF_POS,      self.cb_joint_ref_pos,      10)
     self.sub_joint_state_pos    = node.create_subscription(self.JointState, self.sophia.ROS_CHAN_STATE_POS,    self.cb_joint_state_pos,    10)
     self.sub_joint_state_torque = node.create_subscription(self.JointState, self.sophia.ROS_CHAN_STATE_TORQUE, self.cb_joint_state_torque, 10)
-    self.sub_walking_k = node.create_subscription(self.Float64, self.sophia.ROS_CHAN, self.cb_joint_state_torque, 10)
+
+    self.waking_k = 1.0
+    self.sub_walking_k = node.create_subscription(self.Float64, self.sophia.ROS_CHAN_WALKING_K, self.cb_walking_k, 10)
