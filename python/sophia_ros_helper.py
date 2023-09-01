@@ -5,6 +5,7 @@ class SophiaRos:
   # ROS2 Headers
   import rclpy
   from std_msgs.msg import String
+  from std_msgs.msg import Float64
   from geometry_msgs.msg import Twist
   from sensor_msgs.msg import JointState
   import math
@@ -29,6 +30,7 @@ class SophiaRos:
 
   def ini_ref(self, node):
     self.pub_joint_ref_pos = node.create_publisher(self.JointState, self.sophia.ROS_CHAN_REF_POS, 1)
+    self.pub_walking_k     = node.create_publisher(self.Float64,    self.sophia.ROS_CHAN_WALKING_K, 1)
     return 
 
   def deg2rad(self, val):
@@ -55,3 +57,4 @@ class SophiaRos:
     self.sub_joint_ref_pos      = node.create_subscription(self.JointState, self.sophia.ROS_CHAN_REF_POS,      self.cb_joint_ref_pos,      10)
     self.sub_joint_state_pos    = node.create_subscription(self.JointState, self.sophia.ROS_CHAN_STATE_POS,    self.cb_joint_state_pos,    10)
     self.sub_joint_state_torque = node.create_subscription(self.JointState, self.sophia.ROS_CHAN_STATE_TORQUE, self.cb_joint_state_torque, 10)
+    self.sub_walking_k = node.create_subscription(self.Float64, self.sophia.ROS_CHAN, self.cb_joint_state_torque, 10)

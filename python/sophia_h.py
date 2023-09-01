@@ -8,6 +8,7 @@ class Sophia:
   ROS_CHAN_HEART='/heart/beat'
   ROS_CHAN_WALKING='/ref/walking'
   ROS_CHAN_TURN_CTRL='/cmd/turn'
+  ROS_CHAN_WALKING_K='/gains/walking/k'
   init_name = "none"
   sophia_name = "none"
 
