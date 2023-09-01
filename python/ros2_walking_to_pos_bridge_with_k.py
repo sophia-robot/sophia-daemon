@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
 class HansonWalkingBridge:
+  from std_msgs.msg import Float64
   try:
     import rospy 
     from std_msgs.msg import String 
+    from std_msgs.msg import Float64
     from hr_msgs.msg import TargetPosture 
   except:
     String        = None
