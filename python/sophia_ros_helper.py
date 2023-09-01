@@ -52,8 +52,9 @@ class SophiaRos:
   def getWalkingK(self):
     return self.walking_k
 
-  def setWalkingK(self):
+  def setWalkingK(self, k):
     msg = self.Float64()
+    msg.data = k
     self.pub_walking_k.publish(msg)
 
   def cb_walking_k(self, msg):
