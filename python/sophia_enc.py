@@ -1,6 +1,14 @@
+import sophia_h as sh
+import sophia_ros_helper as srh
+from sensor_msgs.msg import JointState
+
 from serial.tools import list_ports
 from pyvesc import VESC
 import time
+
+sr = srh.SophiaRos()
+
+enc_val = JointState()
 
 def find_vesc_ports(manID=0x0483, prodID=0x5740):
     """Find VESC ports based on manufacturer and product IDs."""
