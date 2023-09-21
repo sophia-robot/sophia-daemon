@@ -44,7 +44,18 @@ class HansonWalkingBridge:
   def cb_walking(self, msg):
     try:
       for i in range(len(msg.position)):
-        msg.position[i] = msg.position[i] * self.walking_k
+        extra_k = 1.0
+        name = msg.name[i]
+        if (name == 'rhp') | (name == 'lhp'):
+          if msg.position[i] < 0.0:
+            extra_k = 2.5
+        elif (name == 'rap') | (name == 'lap'):
+          if msg.position[i] < 0.0:
+            extra_k = 3.0
+#        elif (name == 'rkp') | (name == 'lkp'):
+#          if msg.position[i] > 0.0:
+#            extra_k = 3.0
+        msg.position[i] = msg.position[i] * self.walking_k * extra_k
       self.pub.publish(msg)
     except:
       print("err")

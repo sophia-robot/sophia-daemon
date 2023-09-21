@@ -63,7 +63,7 @@ Start()
 		sophia start ros2-imu
 		sophia start ros2-walking
 		sophia start walking
-                sophia start udp-turn
+#                sophia start udp-turn
 #		sophia start ros2-walking-ref
 
                 sleep 1
