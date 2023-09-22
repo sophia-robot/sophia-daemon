@@ -65,6 +65,7 @@ Start()
   case "$1" in
   # Robot Side
 	'robot' )
+                sophia start kenc
           	sophia start daemon
           	sophia start acc
           	sophia start ros1
@@ -72,7 +73,6 @@ Start()
 		sophia start ros2-walking
 		sophia start walking
                 sophia start knode
-                sophia start kenc
 #                sophia start udp-turn
 #		sophia start ros2-walking-ref
 
@@ -348,6 +348,35 @@ Run()
   fi
 }
 
+Restart()
+{
+  echo "---------------------------"
+  echo "---------------------------"
+  echo "---------------------------"
+  echo "Stopping robot"
+  echo "---------------------------"
+  echo "---------------------------"
+  sophia stop robot
+  sleep 3
+  echo "---------------------------"
+  echo "---------------------------"
+  echo "---------------------------"
+  echo "Starting robot"
+  echo "---------------------------"
+  echo "---------------------------"
+  echo "---------------------------"
+  sophia start robot
+  sleep 1
+  echo "---------------------------"
+  echo "---------------------------"
+  echo "---------------------------"
+  echo "Done"
+  echo "---------------------------"
+  echo "---------------------------"
+  echo "---------------------------"
+}
+
+
 ShowUsage()
 {
 	echo
@@ -395,6 +424,7 @@ ShowUsage()
         echo '                    Sophia work space           '
         echo '          <arg 0>                               '
         echo '          foo.py  : any set of bash arguements  '
+        echo '          restart : restarts the sophia system '
 #        echo 'run               : Runs a command in the sophia'
 #        echo '                    work space                  '
 #        echo '          <arg 0>                               '
@@ -422,6 +452,9 @@ case "$1" in
         'status' )
 		Status $2
 	;;
+        'restart' )
+                Restart
+        ;;
 
 	*)
 		ShowUsage

@@ -42,7 +42,7 @@ if __name__ == '__main__':
                      socket.SOCK_DGRAM) # UDP
 
     while True:
-        time.sleep(0.05)
+        time.sleep(0.2)
         rpm = []
         try:
             for v in vecs:
