@@ -13,6 +13,10 @@ SCREEN_NAME_ROS1="sophia-ros1-bridge"
 SCREEN_NAME_ROS2_IMU="sophia-ros2-bridge-imu"
 SCREEN_NAME_ROS2_WALKING="sophia-ros2-bridge-walking"
 SCREEN_NAME_ROS2_WALKING_REF_BRIDGE="sophia-ros2-bridge-walking-ref"
+SCREEN_NAME_WALKING_K_NODE="sophia-walking-k-node"
+SCREEN_NAME_WALKING_K_ENC="sophia-walking-k-enc"
+
+
 ROOT_DIR=/etc/visir/
 ROOT_DIR_ROBOT_REF=$ROOT_DIR/python
 ROOT_DIR_ROBOT=$ROOT_DIR/python
@@ -31,6 +35,10 @@ BIN_ROS2_WALKING_REF_BRIDGE=ros2_walking_ref_bridge_k.sh
 BIN_WALKING_CTRL=sophia_walking.sh
 BIN_FIDGET=sophia_fidget.sh
 BIN_UDP_TURN=start_turn_ctrl.sh
+BIN_WALKING_K_NODE=ros2_walking_ref_bridge_k.sh
+BIN_WALKING_K_ENC=enc_k_daemon.sh
+
+
 
 DIR_PYTHON_SCRIPT=/etc/sophia/python/
 SCRIPT_PYTHON_RUN=run.sh
@@ -63,6 +71,8 @@ Start()
 		sophia start ros2-imu
 		sophia start ros2-walking
 		sophia start walking
+                sophia start knode
+                sophia start kenc
 #                sophia start udp-turn
 #		sophia start ros2-walking-ref
 
@@ -74,6 +84,16 @@ Start()
                 sleep 1
           	sophia start daemon1
                 sleep 1
+	;;
+	'knode' )
+                THE_NAME=$SCREEN_NAME_WALKING_K_NODE
+                THE_BIN=$BIN_WALKING_K_NODE
+                THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
+	;;
+	'kenc' )
+                THE_NAME=$SCREEN_NAME_WALKING_K_ENC
+                THE_BIN=$BIN_WALKING_K_ENC
+                THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
 	;;
 
 	'daemonLegacy' )
@@ -177,7 +197,20 @@ Stop()
                 sophia stop walking
 		sophia stop ros2-walking-ref
 		sophia stop udp-turn
+                sophia stop knode
+                sophia stop kenc
 	;;
+	'knode' )
+                THE_NAME=$SCREEN_NAME_WALKING_K_NODE
+                THE_BIN=$BIN_WALKING_K_NODE
+                THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
+	;;
+	'kenc' )
+                THE_NAME=$SCREEN_NAME_WALKING_K_ENC
+                THE_BIN=$BIN_WALKING_K_ENC
+                THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
+	;;
+
 	'daemon' )
                 sophia stop daemon0
                 sophia stop daemon1
@@ -238,11 +271,24 @@ Status()
 		sophia status ros1
 		sophia status ros2-imu
 		sophia status ros2-walking
+                sophia status knode
+                sophia status kenc
 	;;
 	'daemon' )
                 Status daemon0
 		Status daemon1
 	;;
+	'knode' )
+                THE_NAME=$SCREEN_NAME_WALKING_K_NODE
+                THE_BIN=$BIN_WALKING_K_NODE
+                THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
+	;;
+	'kenc' )
+                THE_NAME=$SCREEN_NAME_WALKING_K_ENC
+                THE_BIN=$BIN_WALKING_K_ENC
+                THE_ROOT_DIR=$DIR_PYTHON_SCRIPT
+	;;
+
 	'daemonLegacy' )
                 THE_NAME=$SCREEN_NAME_DAEMON
 	;;
@@ -327,6 +373,8 @@ ShowUsage()
         echo '          acc     : Starts accelemator process  '
         echo '          fidget  : Starts fidget               ' 
         echo '          udp-turn: Starts UDP Turn             '
+        echo '          knode   : Start the walking k ROS node'
+        echo '          kenc   : Start the walking k ROS node'
         echo 'stop              : Stops the given system      '
         echo '          <arg 0>                               '
         echo '          robot   : Stops all daemons below     '
@@ -341,6 +389,8 @@ ShowUsage()
         echo '          acc     : Stops accelemator process   ' 
         echo '          fidget  : Stops fidget                ' 
         echo '          udp-turn: Stops UDP Turn              '
+        echo '          knode   : Stops the walking k ROS node'
+        echo '          kenc    : Stops the walking k ROS node'
         echo 'run               : Runs a python script in the '
         echo '                    Sophia work space           '
         echo '          <arg 0>                               '
